@@ -1,0 +1,26 @@
+{
+    "name": "mynet",
+    "type": "bridge",
+    "bridge": "cni0",
+    "isDefaultGateway": false,
+    "ipMasq": true,
+    "hairpinMode": false,
+    "promiscMode": true,
+    "ipam": {
+        "type": "host-local",
+        "ranges": [
+            [
+                {
+                    "subnet": "192.168.32.0/24",
+                    "rangeStart": "192.168.32.10",
+                    "rangeEnd": "192.168.32.19",
+                    "gateway": "192.168.32.1"
+                }
+            ]
+        ],
+        "routes": [
+            { "dst": "0.0.0.0/0" },
+            { "dst": "{{ service_cluster_ip }}", "gw": "{{ cluster_ip_gateway }}"}
+        ]
+    }
+}

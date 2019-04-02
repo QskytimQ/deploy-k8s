@@ -1,0 +1,25 @@
+#: macvlan 设备名称
+DEVICE=fake
+
+#: 设备类型 表明是macvlan
+DEVICETYPE=macvlan
+
+#: 用于 ip link
+TYPE=macvlan
+BOOTPROTO=none
+ONBOOT=yes
+NM_CONTROLLED=no
+
+#： macvlan 绑定的父接口设备
+MACVLAN_PARENT={{ container_if }}
+
+#: macvlan 四种模式： private bridge vepa passthru
+MACVLAN_MODE=bridge
+
+#: macvlan 设备配置的IP地址
+IPADDR={{ cluster_ip_gateway }}
+
+#: ip地址的子网掩码
+PREFIX={{ cidr_len }}
+
+

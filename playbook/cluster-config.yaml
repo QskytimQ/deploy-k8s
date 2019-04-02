@@ -1,0 +1,120 @@
+---
+- name: Cluster Config Set
+  hosts: 127.0.0.1
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+  tasks:
+    - name: Bootstrap Role Bind
+      shell: kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Node Bootstrap CSR Auto Approve
+      shell: kubectl create clusterrolebinding kubelet-bootstrap-csr-auto-approve --clusterrole=system:certificates.k8s.io:certificatesigningrequests:nodeclient --user=kubelet-bootstrap --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Common PSP Create
+      shell: kubectl create -f ../cluster-config/psp-common.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Common PSP ClusterRole Create
+      shell: kubectl create -f ../cluster-config/psp-clusterrole.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Common PSP ClusterRoleBinding Create
+      shell: kubectl create -f ../cluster-config/psp-controllers-clusterrolebinding.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Dir Create All Addon dir 
+      file: path={{ cluster_dir }}/addon-yaml/ state=directory 
+
+    - name: DNS Replicas Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts masters --list-hosts | sed '1d' | wc -l
+      register: dns_replicas
+
+    - name: Ingress Replicas Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts ingress --list-hosts | sed '1d' | wc -l
+      register: ingress_replicas
+
+    - name: Template All Addon Yaml
+      template: src={{ item }} dest={{ cluster_dir }}/addon-yaml/
+      with_fileglob:
+        - "../addon-yaml/*"
+
+    - name: Install All Addon plugin - kube-dns
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/kube-dns.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: kube_dns | default(False)
+
+    - name: Install All Addon plugin - coredns
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/coredns.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: core_dns | default(False)
+
+    - name: Install All Addon plugin - kubernetes-dashboard
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/kubernetes-dashboard.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Install All Addon plugin - traefik 
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/traefik.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: traefik | default(False)
+
+    - name: Install All Addon plugin - nginx
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/nginx.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: nginx | default(False)
+
+    - name: Install All Addon plugin - nginx
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/nginx.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: nginx | default(False)
+
+    - name: Dir Create Metric Server dir 
+      file: path={{ cluster_dir }}/metric-server/ state=directory 
+
+    - name: Template All Metric Server Yaml
+      template: src={{ item }} dest={{ cluster_dir }}/metric-server/
+      with_fileglob:
+        - "../metric-server/*"
+
+    - name: Install Metric Server 
+      shell: kubectl create -f {{ cluster_dir }}/metric-server/ --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Dir Create Prometheus dir 
+      file: path={{ cluster_dir }}/prometheus/ state=directory 
+
+    - name: Template All Prometheus Yaml
+      template: src={{ item }} dest={{ cluster_dir }}/prometheus/
+      with_fileglob:
+        - "../prometheus/*"
+
+    - name: Install Prometheus 
+      shell: kubectl create -f {{ cluster_dir }}/prometheus/ --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+    - name: Dir Create Custom Metric Server dir 
+      file: path={{ cluster_dir }}/custom-metric-server/ state=directory 
+
+    - name: Template Custom Metric Server Yaml
+      template: src={{ item }} dest={{ cluster_dir }}/custom-metric-server/
+      with_fileglob:
+        - "../custom-metric-server/*"
+
+     #    - name: Install Custom Metric Server 
+      #     shell: kubectl create -f {{ cluster_dir }}/custom-metric-server/ --kubeconfig={{ cluster_dir }}/config
+      #     register: result
+      #     failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"

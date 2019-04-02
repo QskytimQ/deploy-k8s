@@ -1,0 +1,17 @@
+DEVICE={{ container_if }}
+
+# Ethnernet
+TYPE=Ethernet
+
+# OVS 
+#DEVICETYPE=ovs
+#TYPE=OVSPort
+#OVS_BRIDGE=ovs-br0
+#NM_CONTROLLED=no
+
+NAME={{ container_if }}
+BOOTPROTO=none
+PROXY_METHOD=none
+BROWSER_ONLY=no
+DEFROUTE=yes
+ONBOOT=yes

@@ -1,0 +1,12 @@
+TYPE=Bridge
+STP=off
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=static
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+NAME=cni0
+DEVICE=cni0
+ONBOOT=yes
+IPADDR={{ cluster_ip_gateway }}
+NETMASK={{ container_network_mask }}

@@ -1,0 +1,47 @@
+---
+- name: Flannel Dir Check
+  file: path={{ cluster_dir }}/flannel/ state=directory
+
+- name: Flannel Installed Check
+  shell: systemctl status flanneld
+  register: installed
+  ignore_errors: True
+  
+- name: Copy Flannel RPM Package
+  copy: src=../network/flannel/flannel-0.7.1-2.el7.x86_64.rpm dest={{ cluster_dir }}/flannel/flannel-0.7.1-2.el7.x86_64.rpm force=true mode=0755
+  when: "'Unit' in installed.stderr"
+
+- name: Flannel Install
+  shell: rpm -ivh {{ cluster_dir }}/flannel/flannel-0.7.1-2.el7.x86_64.rpm --replacepkgs
+  when: "'Unit' in installed.stderr"
+
+- name: Change Flannel Version To 0.10.0
+  copy: src=../network/flannel/flanneld dest=/usr/bin/flanneld force=true mode=0755
+
+- name: Sysctl Net Bridge Config 
+  template: src=../network/flannel/flanneld.template dest=/etc/sysconfig/flanneld
+
+- name: Certificate distribution - Create Dst Dir 
+  file: path=/etc/kubernetes/ssl state=directory
+- name: Certificate distribution - Copy CA Pem File
+  copy: src={{ cluster_dir }}/ssl/ca.pem dest=/etc/kubernetes/ssl force=true
+- name: Certificate distribution - Copy kubernetes.Pem File
+  copy: src={{ cluster_dir }}/ssl/kubernetes.pem dest=/etc/kubernetes/ssl force=true
+- name: Certificate distribution - Copy kubernetes-key.Pem File
+  copy: src={{ cluster_dir }}/ssl/kubernetes-key.pem dest=/etc/kubernetes/ssl force=true
+
+- import_tasks: ./cni_install.yaml
+
+- name: CNI Confifg File
+  template: src=../network/cni/flannel/99-loopback.conf.template dest=/etc/cni/net.d/99-loopback.conf
+
+- name: CNI Confifg File With PortMap(HostPort)
+  template: src=../network/cni/flannel/12-flannel.conflist.template dest=/etc/cni/net.d/12-flannel.conflist
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: Start Flannel 
+  service: name=flanneld state=restarted enabled=yes
+
+

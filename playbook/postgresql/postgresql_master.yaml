@@ -1,0 +1,16 @@
+- name: Init DB
+  shell: /usr/pgsql-11/bin/postgresql-11-setup initdb 
+- name: Copy DB config
+  copy: src=../postgresql/postgresql.conf dest={{ postgresql_data_dir }}/postgresql.conf force=true owner=postgres group=postgres mode=0600
+- name: Copy pg_hba.conf config
+  copy: src={{ cluster_dir }}/pg_hba.conf dest={{ postgresql_data_dir }}/pg_hba.conf force=true owner=postgres group=postgres mode=0600
+- name: Restart Postgres Master
+  service: name=postgresql-11 state=restarted enabled=no
+- name: Create replica user
+  shell: psql -U postgres -h 127.0.0.1 -c "create user replica superuser password 'uhnk098@abc';"
+
+- name: Change User postgres Password
+  shell: psql -U postgres -h 127.0.0.1 -c "ALTER USER postgres WITH PASSWORD '{{ postgresql_pass }}';"
+
+- name: Change User postgres Password
+  shell: psql -U postgres -h 127.0.0.1 -c "create database registry;"

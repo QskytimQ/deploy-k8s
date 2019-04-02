@@ -1,0 +1,15 @@
+{
+    "name": "mynet",
+    "type": "bridge",
+    "bridge": "cni0",
+    "isDefaultGateway": false,
+    "ipMasq": true,
+    "hairpinMode": false,
+    "promiscMode": true,
+    "ipam": {
+        "type": "dhcp",
+        "routes": [
+            { "dst": "{{ service_cluster_ip }}", "gw": "{{ cluster_ip_gateway }}"}
+        ]
+    }
+}

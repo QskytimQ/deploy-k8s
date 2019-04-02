@@ -1,0 +1,29 @@
+---
+- import_tasks: ./cni_install.yaml
+
+- name: CNI Confifg File
+  template: src=../network/cni/macvlan/99-loopback.conf.template dest=/etc/cni/net.d/99-loopback.conf
+
+- name: CNI Confifg File
+  template: src=../network/cni/macvlan/host-local/{{ inventory_hostname }} dest=/etc/cni/net.d/10-macvlan.conf
+  when:  macvlan_host_local | default(False)
+
+- name: CNI Confifg File
+  template: src=../network/cni/macvlan/10-macvlan.conf.template.dhcp dest=/etc/cni/net.d/10-macvlan.conf
+  when:  macvlan_dhcp | default(False)
+
+- name: Fake interface config 
+  template: src=../network/cni/macvlan/ifcfg-fake dest=/etc/sysconfig/network-scripts/
+
+- name: Master interface config 
+  template: src=../network/cni/macvlan/ifcfg-xx dest=/etc/sysconfig/network-scripts/ifcfg-{{ container_if }}
+
+- name: Fake interface ifup script 
+  copy: src=../network/cni/macvlan/ifup-macvlan dest=/etc/sysconfig/network-scripts/ifup-macvlan mode=0755
+
+- name: Fake interface ifdown script 
+  copy: src=../network/cni/macvlan/ifdown-macvlan dest=/etc/sysconfig/network-scripts/ifdown-macvlan mode=0755
+
+- name: Restart Network
+  shell: systemctl restart network
+

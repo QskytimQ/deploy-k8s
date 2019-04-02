@@ -1,0 +1,33 @@
+---
+- name: Docker Installed Check
+  shell: systemctl status docker
+  register: installed
+  ignore_errors: True
+
+- name: Docker Package Dir Check
+  file: path={{ cluster_dir }}/docker/ state=directory
+
+- name: Copy Docker RPM
+  copy: src=../docker/rpm/ dest={{ cluster_dir }}/docker/
+  when: "'Unit' in installed.stderr"
+
+- name: Install Docker
+  shell: rpm -ih {{ cluster_dir }}/docker/*.rpm --replacepkgs --replacefiles
+  when: "'Unit' in installed.stderr"
+
+- name: Docker Service Config 
+  template: src=../docker/docker.service dest=/usr/lib/systemd/system/docker.service
+
+- name: Copy Docker Config File 
+  template: src=../docker/docker.template dest=/etc/sysconfig/docker
+
+- name: Copy Docker Daemon Json Config File 
+  template: src=../docker/daemon.json dest=/etc/docker/daemon.json
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: Start Docker
+  service: name=docker state=restarted enabled=yes
+
+

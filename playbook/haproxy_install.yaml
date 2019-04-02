@@ -1,0 +1,28 @@
+- name: Haproxy Dir check 
+  file: path={{ cluster_dir }}/haproxy state=directory
+- name: Haproxy Installed Check
+  shell: systemctl status haproxy
+  register: installed
+  ignore_errors: True
+- name: Copy HaProxy RPM
+  copy: src=../haproxy/haproxy-1.5.18-6.el7.x86_64.rpm  dest={{ cluster_dir }}/haproxy force=true
+  when: "'Unit' in installed.stderr"
+- name: Install HaProxy 
+  shell: rpm -ih {{ cluster_dir }}/haproxy/haproxy-1.5.18-6.el7.x86_64.rpm --replacepkgs
+  when: "'Unit' in installed.stderr"
+
+- name: Config HaProxy 
+  template: src={{ cluster_dir }}/haproxy.cfg dest=/etc/haproxy/haproxy.cfg
+
+- name: Config HaProxy haproxy_connect_any
+  shell: setenforce 0
+  #  shell: setsebool -P haproxy_connect_any=1
+  register: result
+  failed_when: "result.rc != 0 and 'SELinux is disabled' not in result.stderr"
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+- name: Start haproxy
+  service: name=haproxy state=restarted enabled=yes
+
+- import_tasks: ./keepalived.yaml

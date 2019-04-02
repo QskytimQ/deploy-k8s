@@ -1,0 +1,29 @@
+---
+- name: Install Containerd 
+  unarchive: src=../containerd/bin.tar.gz dest=/usr/local/bin/ mode=0755
+
+- name: Containerd Service Config 
+  template: src=../containerd/containerd.service dest=/usr/lib/systemd/system/containerd.service
+
+- name: Containerd Root Dir Create
+  file: path={{ containerd_root }} state=directory
+
+- name: Containerd State Dir Create
+  file: path={{ containerd_state }} state=directory
+
+- name: Containerd Config Dir Create
+  file: path=/etc/containerd/ state=directory
+
+- name: Containerd Config
+  template: src=../containerd/config.toml.template dest=/etc/containerd/config.toml
+
+- name: Crictl Config
+  template: src=../containerd/crictl.yaml dest=/etc/crictl.yaml
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: Start Containerd 
+  service: name=containerd state=restarted enabled=yes
+
+

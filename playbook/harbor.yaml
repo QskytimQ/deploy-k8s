@@ -1,0 +1,67 @@
+---
+- hosts: harbor
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+    keepalived_conf_file: ../harbor/keepalived.conf
+  tasks:
+    - import_tasks: ./postgresql.yaml
+
+    - name: Copy Harbor Status Check Script
+      template: src=../harbor/check_harbor.sh dest=/root/keepalived/check_harbor.sh force=true mode=0700 
+
+    - import_tasks: ./keepalived.yaml
+
+    - name: Install Docker
+      yum: name=docker state=present
+
+    - name: Start Docker
+      service: name=docker state=restarted enabled=yes
+
+    - name: Install Docker-compose
+      copy: src=../docker/docker-compose dest=/usr/bin/ force=true mode=0755
+      
+      #Harbor Offline Package Copy
+    - name: Data Dir 
+      file: path={{ data_dir }} state=directory
+    - name: Harbor Offline package copy
+      unarchive: src=../harbor/harbor.tar.gz dest={{ data_dir }}
+
+      #Harbor Config File Copy
+    - name: Copy Harbor Config
+      template: src={{ item }} dest={{ data_dir }}/harbor/
+      with_fileglob:
+        - "../harbor/install/*"
+
+      #Harbor Root Cert And Secret Copy
+    - name: Copy Harbor Secret And Cert
+      copy: src={{ cluster_dir }}/harbor/ dest={{ data_dir }}/harbor/common/ force=true
+    - name: Copy SecretKey
+      copy: src={{ cluster_dir }}/harbor/secretkey dest={{ data_dir }}/harbor/data/ force=true
+
+      #Harbor Https Cert Copy
+    - name: Https Cert Dir 
+      file: path={{ data_dir }}/harbor/data/cert/ state=directory
+    - name: Https Server Cert Copy
+      copy: src={{ cluster_dir }}/harbor/https/server.crt dest={{ data_dir }}/harbor/data/cert/ force=true
+    - name: Https Server Key Copy
+      copy: src={{ cluster_dir }}/harbor/https/server.key dest={{ data_dir }}/harbor/data/cert/ force=true
+    
+      #Docker Https Cert Copy
+    - name: Docker Cert Dir 
+      file: path=/etc/docker/certs.d/{{ harbor_vip }} state=directory
+    - name: Https Server Cert Copy
+      copy: src={{ cluster_dir }}/harbor/https/server.cert dest=/etc/docker/certs.d/{{ harbor_vip }}/ force=true
+    - name: Https Server Key Copy
+      copy: src={{ cluster_dir }}/harbor/https/server.key dest=/etc/docker/certs.d/{{ harbor_vip }}/ force=true
+    - name: Https CA Cert Copy
+      copy: src={{ cluster_dir }}/harbor/https/ca.crt dest=/etc/docker/certs.d/{{ harbor_vip }}/ force=true
+
+
+    - name: Harbor Install
+      shell: ./install.sh {{ plugins }}
+      args:
+       chdir: "{{ data_dir }}/harbor/"
+    - name: Make Harbor Installed Status
+      file: path={{ data_dir }}/harbor/status state=touch
+    - name: Set Harbor Installed Status 
+      shell: echo -n "installed" > {{ data_dir }}/harbor/status

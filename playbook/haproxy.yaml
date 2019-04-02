@@ -1,0 +1,9 @@
+---
+- hosts: lb 
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+    keepalived_conf_file: ../haproxy/keepalived.conf
+  tasks:
+    - import_tasks: ./haproxy_install.yaml
+      when: lb_enable | default(False)
+

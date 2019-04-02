@@ -1,0 +1,86 @@
+---
+- hosts: masters
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+    local_ssl: /root/{{ cluster_name }}/ssl
+  tasks:
+    - name: Distribute Admin Config To All Masters - kube dir create
+      file: path=~/.kube state=directory
+    - name: Distribute Admin Config To All Masters - copy config
+      copy: src={{ cluster_dir }}/config dest=~/.kube/config force=true
+    - name: K8s Config - Dir create
+      file: path=/etc/kubernetes/ state=directory
+    - name: Copy Bootstrap Token
+      template: src={{ cluster_dir }}/token.csv dest=/etc/kubernetes/
+    - name: Distribute KubeControllerManager Config To All Masters - Copy config
+      copy: src={{ cluster_dir }}/kube-controller-manager.kubeconfig dest=/etc/kubernetes/ force=true
+    - name: Distribute KubeScheduler Config To All Masters - Copy config
+      copy: src={{ cluster_dir }}/kube-scheduler.kubeconfig dest=/etc/kubernetes/ force=true
+
+    - name: Certificate distribution - Create Dst Dir 
+      file: path=/etc/kubernetes/ssl state=directory
+    - name: Certificate distribution - Copy Pem File
+      copy: src={{ local_ssl }} dest=/etc/kubernetes force=true
+
+    - name: Kubectl distribution 
+      copy: src=../bin/kubectl dest=/usr/bin force=true mode=0755
+      #install docker 
+      #    - import_tasks: ./docker.yaml
+
+    - name: Copy k8s Master Bin File
+      copy: src=../bin/master/ dest=/usr/local/bin/ force=true mode=0755
+
+    - name: Register Apiserver To System Service
+      copy: src=../k8s-config/kube-apiserver.service dest=/usr/lib/systemd/system/ force=true
+    - name: Kube Apiserver Config 
+      template: src=../k8s-config/apiserver.template dest=/etc/kubernetes/apiserver
+    - name: Kube Common Config 
+      template: src=../k8s-config/config.template dest=/etc/kubernetes/config
+
+    - name: systemctl daemon-reload
+      shell: systemctl daemon-reload
+    - name: Start Apiserver 
+      service: name=kube-apiserver state=restarted enabled=yes
+
+    - name: Register Controller-manger To System Service
+      copy: src=../k8s-config/kube-controller-manager.service dest=/usr/lib/systemd/system/ force=true
+    - name: Kube Controller-manger Config 
+      template: src=../k8s-config/controller-manager.template dest=/etc/kubernetes/controller-manager
+
+    - name: systemctl daemon-reload
+      shell: systemctl daemon-reload
+    - name: Start Controller-manger 
+      service: name=kube-controller-manager state=restarted enabled=yes
+
+    - name: Register Scheduler To System Service
+      copy: src=../k8s-config/kube-scheduler.service dest=/usr/lib/systemd/system/ force=true
+    - name: Kube Scheduler Config 
+      template: src=../k8s-config/scheduler.template dest=/etc/kubernetes/scheduler
+
+    - name: systemctl daemon-reload
+      shell: systemctl daemon-reload
+    - name: Start Scheduler
+      service: name=kube-scheduler state=restarted enabled=yes
+      #
+      #    - name: Imaged Dir Check
+      #      file: path={{ cluster_dir }}/images state=directory
+      #    - name: Copy all addon images to master
+      #      copy: src=../../images/image.tar.gz dest={{ cluster_dir }}/images force=true
+      #    - name: Docker Load  All Addon Images
+      #      shell: docker load < {{ cluster_dir }}/images/image.tar.gz
+      #    - name: Copy Metric Server image to master
+      #      copy: src=../../images/metrics-server-amd64.tar.gz dest={{ cluster_dir }}/images/metrics-server-amd64.tar.gz force=true
+      #    - name: Docker Load  Metric Server Image
+      #      shell: docker load < {{ cluster_dir }}/images/metrics-server-amd64.tar.gz
+      #    - name: Copy Custom Metric Server image to master
+      #      copy: src=../../images/k8s-prometheus-adapter.tar.gz dest={{ cluster_dir }}/images/k8s-prometheus-adapter.tar.gz force=true
+      #    - name: Docker Load Custom Metric Server Image
+      #      shell: docker load < {{ cluster_dir }}/images/k8s-prometheus-adapter.tar.gz
+      #    - name: Copy Prometheus Image to master
+      #      copy: src=../../images/prometheus.tar.gz dest={{ cluster_dir }}/images/prometheus.tar.gz force=true
+      #    - name: Docker Load Prometheus Image
+      #      shell: docker load < {{ cluster_dir }}/images/prometheus.tar.gz
+
+    - import_tasks: ./network/flannel_etcd_config.yaml
+      when: network_flannel | default(False)
+      run_once: True

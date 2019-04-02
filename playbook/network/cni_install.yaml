@@ -1,0 +1,26 @@
+---
+- name: CNI Bin Dir Create
+  file: path=/opt/cni/bin/ state=directory
+
+- name: CNI Bin File 
+  unarchive: src=../network/cni/bin.tar.gz dest=/opt/cni/bin/ mode=0755
+
+- name: CNI Config Dir Create
+  file: path=/etc/cni/net.d/ state=directory
+
+- name: CNI DHCP Service file
+  copy: src=../network/cni/cni-dhcp.service dest=/usr/lib/systemd/system/
+  when:  macvlan_dhcp or bridge_dhcp
+
+- name: CNI DHCP Service Daemon-reload
+  shell: systemctl daemon-reload
+  when:  macvlan_dhcp or bridge_dhcp
+
+- name: CNI DHCP Service enable
+  shell: systemctl enable cni-dhcp
+  when:  macvlan_dhcp or bridge_dhcp
+
+- name: CNI DHCP Service start
+  shell: systemctl restart cni-dhcp
+  when:  macvlan_dhcp or bridge_dhcp
+

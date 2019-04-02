@@ -1,0 +1,7 @@
+---
+- name: Install Node
+  hosts: new_nodes 
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+  tasks:
+    - import_tasks: ./node_run.yaml

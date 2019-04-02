@@ -1,0 +1,45 @@
+---
+- name: Cluster Ope
+  hosts: 127.0.0.1
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+  tasks:
+    - name: Masters Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts masters --list-hosts | sed '1d' 
+      register: masters_list
+    - name: Master node label
+      shell: kubectl label node {{ item }} kubernetes.io/role=master --kubeconfig={{ cluster_dir }}/config
+      with_items:
+        - "{{ masters_list.stdout_lines }}"
+      register: result
+      failed_when: "result.rc != 0 and '--overwrite is false' not in result.stderr"
+
+    - name: Nodes Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts nodes --list-hosts | sed '1d' 
+      register: nodes_list
+    - name: Nodes node label
+      shell: kubectl label node {{ item }} kubernetes.io/role=node --kubeconfig={{ cluster_dir }}/config
+      with_items:
+        - "{{ nodes_list.stdout_lines }}"
+      register: result
+      failed_when: "result.rc != 0 and '--overwrite is false' not in result.stderr"
+
+    - name: New Nodes Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts new_nodes --list-hosts | sed '1d' 
+      register: new_nodes_list
+    - name: Nodes node label
+      shell: kubectl label node {{ item }} kubernetes.io/role=node --kubeconfig={{ cluster_dir }}/config
+      with_items:
+        - "{{ new_nodes_list.stdout_lines }}"
+      register: result
+      failed_when: "result.rc != 0 and '--overwrite is false' not in result.stderr"
+
+    - name: Ingress Get
+      shell: ansible -i ../inventory/{{ cluster_name }}_hosts ingress --list-hosts | sed '1d' 
+      register: ingress_list
+    - name: Ingress node label
+      shell: kubectl label node {{ item }} wocloud/role=ingress --kubeconfig={{ cluster_dir }}/config
+      with_items:
+        - "{{ ingress_list.stdout_lines }}"
+      register: result
+      failed_when: "result.rc != 0 and '--overwrite is false' not in result.stderr"

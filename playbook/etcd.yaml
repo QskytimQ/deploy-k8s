@@ -1,0 +1,32 @@
+---
+- hosts: etcd 
+  vars:
+    local_ssl: /root/{{ cluster_name }}/ssl
+  tasks:
+    - name: Certificate distribution - Create Dst Dir 
+      file: path=/etc/kubernetes/ssl state=directory
+    - name: Certificate distribution - Copy Pem File
+      copy: src={{ local_ssl }} dest=/etc/kubernetes force=true
+
+    - name: Copy Etcd Bin File
+      copy: src=../etcd/bin/ dest=/usr/local/bin force=true mode=0755
+    - name: Register Etcd To System Service
+      template: src=../etcd/etcd.service dest=/usr/lib/systemd/system/ force=true
+    - name: Create Dir etcd conf
+      file: path=/etc/etcd state=directory
+      #    - name: Etcd Config 
+      #template: src=../etcd/etcd.conf.template dest=/etc/etcd/etcd.conf
+    - name: Create Working Dir
+      file: path=/var/lib/etcd state=directory
+    - name: Create Data Dir
+      file: path={{ etcd_data_dir }} state=directory
+##MUST 测试etcd data dir是否需要创建
+
+##MUST 测试fire wall
+    - name: Flush Firewall 
+      shell: iptables -F 
+    - name: systemctl daemon-reload
+      shell: systemctl daemon-reload
+    - name: Start Etcd
+      service: name=etcd state=restarted enabled=yes
+

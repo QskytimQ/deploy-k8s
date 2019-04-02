@@ -1,0 +1,12 @@
+{
+    "name": "mynet",
+    "type": "macvlan",
+    "master": "{{ container_if }}",
+    "mode": "bridge",
+    "ipam": {
+        "type": "dhcp",
+        "routes": [
+            { "dst": "{{ service_cluster_ip }}", "gw": "{{ cluster_ip_gateway }}"}
+        ]
+    }
+}

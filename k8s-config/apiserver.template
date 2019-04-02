@@ -1,0 +1,31 @@
+###
+## kubernetes system config
+##
+## The following values are used to configure the kube-apiserver
+##
+#
+## The address on the local server to listen to.
+#KUBE_API_ADDRESS="--insecure-bind-address=sz-pg-oam-docker-test-001.tendcloud.com"
+#KUBE_API_ADDRESS="--advertise-address={{ inventory_hostname }} --bind-address={{ inventory_hostname }} --insecure-bind-address=127.0.0.1"
+KUBE_API_ADDRESS="--advertise-address={{ inventory_hostname }} --bind-address=0.0.0.0"
+#
+## The port on the local server to listen on.
+KUBE_API_PORT="--port=6080"
+#
+## Port minions listen on
+#KUBELET_PORT="--kubelet-port=10250"
+#
+## Comma separated list of nodes in the etcd cluster
+#KUBE_ETCD_SERVERS="--etcd-servers=https://172.20.0.113:2379,https://172.20.0.114:2379,https://172.20.0.115:2379"
+KUBE_ETCD_SERVERS="--etcd-servers={{ etcd_servers }}"
+#
+## Address range to use for services
+KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range={{ service_cluster_ip }}"
+#
+## default admission control policies
+KUBE_ADMISSION_CONTROL="--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota,PodSecurityPolicy,AlwaysPullImages"
+#
+## Add your own!
+#in k8s 1.9  --experimental-bootstrap-token-auth change to --enable-bootstrap-token-auth
+#KUBE_API_ARGS="--authorization-mode=RBAC,Node --runtime-config=rbac.authorization.k8s.io/v1beta1 --enable-bootstrap-token-auth --kubelet-https=true --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --etcd-cafile=/etc/kubernetes/ssl/ca.pem --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --requestheader-client-ca-file=/etc/kubernetes/ssl/ca.pem  --requestheader-allowed-names=aggregator  --requestheader-extra-headers-prefix=X-Remote-Extra-  --requestheader-group-headers=X-Remote-Group  --requestheader-username-headers=X-Remote-User  --proxy-client-cert-file=/etc/kubernetes/ssl/aggregator.pem  --proxy-client-key-file=/etc/kubernetes/ssl/aggregator-key.pem"
+KUBE_API_ARGS="--authorization-mode=RBAC,Node --runtime-config=rbac.authorization.k8s.io/v1beta1 --enable-bootstrap-token-auth --kubelet-https=true --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/service-account.pem --etcd-cafile=/etc/kubernetes/ssl/ca.pem --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --requestheader-client-ca-file=/etc/kubernetes/ssl/ca.pem --requestheader-extra-headers-prefix=X-Remote-Extra-  --requestheader-group-headers=X-Remote-Group  --requestheader-username-headers=X-Remote-User  --proxy-client-cert-file=/etc/kubernetes/ssl/aggregator.pem  --proxy-client-key-file=/etc/kubernetes/ssl/aggregator-key.pem"

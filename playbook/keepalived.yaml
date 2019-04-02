@@ -1,0 +1,36 @@
+- name: Install Dir check 
+  file: path={{ cluster_dir }} state=directory
+- name: Disable selinux
+  shell: setenforce 0
+  register: result
+  failed_when: "result.rc != 0 and 'SELinux is disabled' not in result.stderr"
+- name: Disable selinux Persist 
+  template: src=../linux-conf/selinux.template dest=/etc/selinux/config
+- name: KeepAlived Installed Check
+  shell: systemctl status keepalived
+  register: installed
+  ignore_errors: True
+- name: Stop And Disable Firewall
+  service: name=firewalld state=stopped enabled=no
+- name: Install KeepAlived copy rpm package
+  copy: src=../keepalived  dest={{ cluster_dir }} force=true
+  when: "'Unit' in installed.stderr"
+- name: Install KeepAlived
+  shell: rpm -ih {{ cluster_dir }}/keepalived/*.rpm --replacepkgs --replacefiles
+  when: "'Unit' in installed.stderr"
+- name: Config KeepAlived
+  template: src={{ keepalived_conf_file }}  dest=/etc/keepalived/keepalived.conf
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+- name:  KeepAlived Master Start
+  service: name=keepalived state=started
+  when: state == "MASTER"
+- name: Wait For Keepalived Master Started
+  wait_for:
+    host: "{{ postgresql_vip }}"
+    port: 5432
+  when:  state == "MASTER" and postgresql_vip is defined
+- name:  KeepAlived Slave Start
+  service: name=keepalived state=started
+  when: state == "BACKUP"
+

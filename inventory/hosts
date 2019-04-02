@@ -1,0 +1,143 @@
+###################### cluster configs ############
+[all:vars]
+#设置一个k8s安装名称,只在安装时有效
+cluster_name=cluster
+#要安装主机的用户密码, 必填
+ansible_ssh_user=root
+ansible_ssh_pass=pass
+#是否为k8s控制节点安装高可用HAProxy
+lb_enable=False
+#当lb_enable=true的时候，设置kube_apiserver为lb的地址，否则设置为实际apiserver的地址, 必填
+#lb listen port 9443 ; apiserver port 6443
+kube_apiserver=https://10.0.0.1:6443
+
+#此处可加入insecure registry地址,当前只支持添加一个insecure registry地址,且必须填一个
+insecure_registry_addr="10.0.0.2"
+insecure_registry_port="80"
+#k8s集群组件需要的镜像的registry地址
+base_image_addr="docker.io/kuramal"
+#基础pod镜像地址
+pod_image="mirrorgooglecontainers/pause:3.1"
+
+#k8s service网络设置
+service_cluster_ip="10.254.0.0/16"
+#不用填写，自动生成
+#service_cluster_dns=
+
+#proxy of dns server,至少写一个
+#upstream_nameserver="114.114.114.114 8.8.8.8"
+upstream_nameserver="114.114.114.114"
+
+#containerd Config, 下面两个目录不能相同
+containerd_root="/var/lib/containerd"
+containerd_state="/run/containerd"
+
+#etcd服务地址, 不用填写，自动生成
+#etcd_servers=
+
+####
+##  容器网络方案
+####
+##  网络通用参数，目前用于macvlan和bridge
+container_network_mask="255.255.255.0"
+container_if="eth1"
+
+###################### macvlan 参数###############
+#启用macvlan作为容器网络,默认方案
+network_macvlan=False
+#若使用macvlan的host-local方式 手动去配置../network/cni/macvlan/host-local，配置完后将下面参数改为true
+macvlan_host_local=False
+macvlan_dhcp=False
+###################### bridge 参数###############
+#启用bridge作为容器网络
+network_bridge=False
+#若使用bridge的host-local方式 手动去配置../network/cni/bridge/host-local，配置完后将下面参数改为true
+bridge_host_local=False
+bridge_dhcp=False
+
+
+###################### flannel 参数###############
+#启用flannel作为容器网络,当选用该网络方案时，修改下面参数为True, 并填写后续参数
+network_flannel=False
+#容器网络段
+pod_network="10.200.0.0/16"
+pod_network_sublen=24
+#flannel newwork type: host_gw or vxlan
+network_type="host-gw"
+#flannel使用的网卡名称，不填的话，自动选择
+#flannel_if="-ifcfg=eth0"
+flannel_if=""
+
+####
+##  Kubernetes Plugin 选项 ##
+####
+#### DNS ####
+##将要使用的dns方案设置为True
+core_dns=True
+kube_dns=False
+#### Ingress ####
+##将要使用的Ingress方案设施为True
+nginx=True
+traefik=False
+
+###################### etcd configs ##############
+[etcd:vars]
+#example:
+cluster_token='cluster-token'
+etcd_data_dir='/var/lib/etcd'
+#不用填写,自动生成
+#etcd_cluster=
+
+[etcd]
+#etcd1_address etcd_name='etcd1'
+#etcd2_address etcd_name='etcd2'
+#etcd3_address etcd_name='etcd3'
+
+[masters]
+#master1_address cluster_ip_gateway=''
+#master2_address cluster_ip_gateway=''
+#master3_address cluster_ip_gateway=''
+
+#部署ingress的节点地址
+[ingress]
+#ingress1_address
+#ingress2_address
+
+#already set all master to nodes
+[nodes]
+#node1_address cluster_ip_gateway=''
+
+
+#when add new nodes to cluster
+[new_nodes]
+
+####
+## 部署Cluster LB时的参数############
+####
+[lb:vars]
+vip='10.0.0.4/24'
+brd='10.0.0.255'
+auth_pass='12138'
+[lb]
+#lb1_address  if='eth0' state='MASTER' priority='100' 
+#lb2_address  if='eth0' state='BACKUP' priority='99' 
+#lb3_address  if='eth0' state='BACKUP' priority='99'
+
+[harbor:vars]
+harbor_protocol='http'
+harbor_vip='10.0.0.8'
+postgresql_vip='10.0.0.9'
+postgresql_pass='pg'
+brd='10.0.0.255'
+auth_pass='121381'
+data_dir='/data'
+plugins="--with-clair"
+#postgresql_data_dir目录，不能与其它目录共用
+#请确保该目录为其独有，否则可能影响其它业务
+postgresql_data_dir="/var/lib/pgsql/11/data"
+
+[harbor]
+#harbor1_address state='MASTER' priority='100' if='eth0'
+#harbor2_address state='BACKUP' priority='99' if='eth0'
+
+

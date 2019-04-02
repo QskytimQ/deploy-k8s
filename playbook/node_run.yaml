@@ -1,0 +1,83 @@
+- name: Distribute Bootstrapping And Kube-porxy Config To All Nodes - Dir create
+  file: path=/etc/kubernetes/ state=directory
+- name: Distribute Bootstrapping Config To All Nodes - Copy config
+  copy: src={{ cluster_dir }}/bootstrap.kubeconfig dest=/etc/kubernetes/ force=true
+- name: Distribute Kube-porxy Config To All Nodes - Copy config
+  copy: src={{ cluster_dir }}/kube-proxy.kubeconfig dest=/etc/kubernetes/ force=true
+
+- import_tasks: ./network/macvlan_install.yaml
+  when: network_macvlan | default(False)
+
+- import_tasks: ./network/bridge_install.yaml
+  when: network_bridge | default(False)
+
+  #install docker 
+  #- import_tasks: ./docker.yaml
+  
+  #install containerd 
+- import_tasks: ./containerd.yaml
+
+- name: Disable selinux
+  shell: setenforce 0
+  register: result
+  failed_when: "result.rc != 0 and 'SELinux is disabled' not in result.stderr"
+- name: Disable selinux Persist 
+  template: src=../linux-conf/selinux.template dest=/etc/selinux/config
+
+- name: Sysctl Net Bridge Config 
+  template: src=../linux-conf/sysctl-k8s.conf dest=/etc/sysctl.d/k8s.conf
+
+- name: Sysctl Net Bridge Config Apply
+  shell: sysctl --system
+
+- name: Stop And Disable Firewall
+  service: name=firewalld state=stopped enabled=no
+
+- import_tasks: ./network/flannel_install.yaml
+  when: network_flannel | default(False)
+
+  #- name: Restart Docker
+  #service: name=docker state=restarted
+
+- name: Copy k8s Node Bin File
+  copy: src=../bin/node/ dest=/usr/local/bin/ force=true mode=0755
+
+- name: Register Kubelet To System Service
+  copy: src=../k8s-config/kubelet.service dest=/usr/lib/systemd/system/ force=true
+- name: Kubelet Config 
+  template: src=../k8s-config/kubelet.template dest=/etc/kubernetes/kubelet
+- name: Kube Common Config 
+  template: src=../k8s-config/config.template dest=/etc/kubernetes/config
+
+- name: Dir Create kubelet working dir 
+  file: path=/var/lib/kubelet state=directory
+
+- name: Disable Swap Now
+  shell: swapoff -a 
+
+- name: Disable Swap Persist
+  shell: sed -i '/ swap / s/^/#/' /etc/fstab
+
+  #- name: Imaged Dir Check
+  #file: path={{ cluster_dir }}/images state=directory
+  #- name: Copy Pod Base Image To nodes
+  #copy: src=../../images/pause-amd64.tar dest={{ cluster_dir }}/images force=true
+  #- name: Docker Load Pod Base Image 
+  #shell: docker load < {{ cluster_dir }}/images/pause-amd64.tar
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+- name: Start Kubelet 
+  service: name=kubelet state=restarted enabled=yes
+
+- name: Register Kube-proxy To System Service
+  copy: src=../k8s-config/kube-proxy.service dest=/usr/lib/systemd/system/ force=true
+- name: Kube Proxy Config 
+  template: src=../k8s-config/proxy.template dest=/etc/kubernetes/proxy
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+- name: Start Kube-proxy 
+  service: name=kube-proxy state=restarted enabled=yes
+
+

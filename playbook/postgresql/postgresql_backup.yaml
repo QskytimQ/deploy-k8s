@@ -1,0 +1,16 @@
+- name: Config Postgresql11 Backup
+  template: src={{ cluster_dir }}/pg_basebackup.sh dest=/var/lib/pgsql/pg_basebackup.sh force=true owner=postgres group=postgres mode=0700
+- name: Backup Data From Master
+  shell: sh /var/lib/pgsql/pg_basebackup.sh
+  become: yes
+  become_user: postgres
+- name: Config Recovery File
+  shell: echo "trigger_file = '/var/lib/pgsql/trigger_file'"  >> {{ postgresql_data_dir }}/recovery.conf
+  become: yes
+  become_user: postgres
+- name: Config Recovery File
+  shell: echo "recovery_target_timeline = 'latest'"  >> {{ postgresql_data_dir }}/recovery.conf
+  become: yes
+  become_user: postgres
+- name: Restart Postgres Backup
+  service: name=postgresql-11 state=restarted enabled=no

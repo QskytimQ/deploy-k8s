@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -f /run/cni/dhcp.sock
+
+/opt/cni/bin/dhcp daemon &

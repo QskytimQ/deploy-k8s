@@ -1,0 +1,29 @@
+---
+- name: Install Postgresql yum repo
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/11/redhat/rhel-7-x86_64/pgdg-centos11-11-2.noarch.rpm
+    state: present
+- name: Install Postgresql11 Client
+  yum: name=postgresql11   state=present
+- name: Install Postgresql11 Server
+  yum: name=postgresql11-server state=present
+
+- name: Postgresql11 Service File Config
+  template: src=../postgresql/postgresql-11.service dest=/etc/systemd/system/postgresql-11.service force=true
+
+- name: Postgresql11 Service DaemonReload
+  shell: systemctl daemon-reload 
+
+- name: Keepalive Script Dir
+  file: path=/root/keepalived state=directory
+
+- name: Copy Postgresql11 Master Change Script
+  template: src=../postgresql/to_master.sh dest=/root/keepalived/to_master.sh force=true mode=0700
+
+- import_tasks: ./postgresql/postgresql_master.yaml
+  when: state == "MASTER"
+
+- import_tasks: ./postgresql/postgresql_backup.yaml
+  when: state == "BACKUP"
+
+

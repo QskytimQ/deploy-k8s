@@ -1,0 +1,17 @@
+[Unit]
+Description=CNI DHCP Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/rm -f /run/cni/dhcp.sock
+ExecStart=/opt/cni/bin/dhcp daemon
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
