@@ -53,7 +53,7 @@ for harbor_ip in $harbor_list; do
     num=`expr $num + 1`  
 done
 
-ansible 127.0.0.1 -m copy -a "src=./harbor/https_cert.sh dest=$harbor_https_cert_dir mode=0755"
+ansible 127.0.0.1 -m template -a "src=./harbor/https_cert.sh dest=$harbor_https_cert_dir mode=0755" -e "harbor_vip=$harbar_vip"
 
 ansible 127.0.0.1 -m shell -a "./https_cert.sh chdir=$harbor_https_cert_dir"
 
