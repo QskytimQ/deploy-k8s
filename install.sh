@@ -5,7 +5,7 @@
 cluster_name=`cat inventory/hosts | grep cluster_name | awk -F '=' '{ print $2}'`
 cluster_dir=/root/$cluster_name
 inventory_hosts="./inventory/"$cluster_name"_hosts"
-mkdir $cluster_dir
+mkdir -p $cluster_dir
 
 function pre_check() {
     record=$cluster_dir"/."$1"_done"

@@ -118,6 +118,8 @@ etcd_data_dir='/var/lib/etcd'
 vip='10.0.0.4/24'
 brd='10.0.0.255'
 auth_pass='12138'
+#keepalived virtual_router_id, 注意：同一网段内该id不能重复
+virtual_router_id='50'
 [lb]
 #lb1_address  if='eth0' state='MASTER' priority='100' 
 #lb2_address  if='eth0' state='BACKUP' priority='99' 
@@ -135,6 +137,9 @@ plugins="--with-clair"
 #postgresql_data_dir目录，不能与其它目录共用
 #请确保该目录为其独有，否则可能影响其它业务
 postgresql_data_dir="/var/lib/pgsql/11/data"
+#keepalived virtual_router_id, 注意：同一网段内该id不能重复
+harbor_virtual_router_id='60'
+pgsql_virtual_router_id='70'
 
 [harbor]
 #harbor1_address state='MASTER' priority='100' if='eth0'

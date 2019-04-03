@@ -1,5 +1,9 @@
 - name: Config Postgresql11 Backup
   template: src={{ cluster_dir }}/pg_basebackup.sh dest=/var/lib/pgsql/pg_basebackup.sh force=true owner=postgres group=postgres mode=0700
+
+- name: Postgres Data Dir Create
+  file: path={{ postgresql_data_dir }} state=directory mode=0700 owner=postgres group=postgres
+
 - name: Backup Data From Master
   shell: sh /var/lib/pgsql/pg_basebackup.sh
   become: yes
