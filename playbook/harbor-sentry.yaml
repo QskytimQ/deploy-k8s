@@ -1,0 +1,19 @@
+
+- name: Copy Harbor Sentry Bin File
+  copy: src=../harbor/sentry/harbor-sentry dest=/usr/local/bin/harbor-sentry mode=0755 force=true
+
+- name: Copy Harbor Sentry Bin Service File
+  copy: src=../harbor/sentry/harbor-sentry.service  dest=/usr/lib/systemd/system/ force=true
+
+- name: Harbor Sentry Config Dir Create
+  file: path=/etc/sentry/ state=directory
+
+- name: Copy Harbor Sentry Config File
+  template: src={{ cluster_dir }}/harbor/sentry/config.toml dest=/etc/sentry/ force=true
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: Start Harbor Sentry 
+  service: name=harbor-sentry state=restarted enabled=yes
+

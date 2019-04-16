@@ -1,8 +1,9 @@
 ---
 - name: Install Postgresql yum repo
-  yum:
-    name: https://download.postgresql.org/pub/repos/yum/11/redhat/rhel-7-x86_64/pgdg-centos11-11-2.noarch.rpm
-    state: present
+  copy: src=../postgresql/pgdg-11-centos.repo dest=/etc/yum.repos.d/ 
+- name: Yum Makecache
+  shell:  yum clean all && yum makecache
+
 - name: Install Postgresql11 Client
   yum: name=postgresql11   state=present
 - name: Install Postgresql11 Server

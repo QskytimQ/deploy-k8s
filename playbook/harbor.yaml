@@ -65,3 +65,6 @@
       file: path={{ data_dir }}/harbor/status state=touch
     - name: Set Harbor Installed Status 
       shell: echo -n "installed" > {{ data_dir }}/harbor/status
+
+      #Harbor Sentry Install
+    - import_tasks: ./harbor-sentry.yaml
