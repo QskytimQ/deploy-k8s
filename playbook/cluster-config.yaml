@@ -29,6 +29,9 @@
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
 
+    - import_tasks: ./network/calico_install.yaml
+      when: network_calico
+
     - name: Dir Create All Addon dir 
       file: path={{ cluster_dir }}/addon-yaml/ state=directory 
 

@@ -11,6 +11,7 @@ spec:
   fsGroup:
     rule: RunAsAny
   hostNetwork: true
+  privileged: true
   hostPorts:
   - max: 65535
     min: 0
@@ -27,3 +28,4 @@ spec:
   - secret
   - downwardAPI
   - persistentVolumeClaim
+  - hostPath

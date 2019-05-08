@@ -11,6 +11,9 @@
 - import_tasks: ./network/bridge_install.yaml
   when: network_bridge | default(False)
 
+- import_tasks: ./network/cni_install.yaml                                     
+  when: network_calico
+
   #install docker 
   #- import_tasks: ./docker.yaml
   
