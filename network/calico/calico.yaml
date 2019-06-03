@@ -14,9 +14,9 @@ data:
   # The keys below should be uncommented and the values populated with the base64
   # encoded contents of each file that would be associated with the TLS data.
   # Example command for encoding a file contents: cat <file> | base64 -w 0
-  etcd-key: {{ etcd-key }}
-  etcd-cert: {{ etcd-cert }}
-  etcd-ca: {{ etcd-ca }}
+  etcd-key: {{ etcd_key }}
+  etcd-cert: {{ etcd_cert }}
+  etcd-ca: {{ etcd_ca }}
 ---
 # Source: calico/templates/calico-config.yaml
 # This ConfigMap is used to configure a self-hosted Calico installation.

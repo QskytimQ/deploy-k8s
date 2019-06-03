@@ -13,9 +13,9 @@
 
 - name: Calico Yaml Config 
   vars:
-    etcd-key: "{{ key.stdout }}"
-    etcd-cert: "{{ cert.stdout }}"
-    etcd-ca: "{{ ca.stdout }}"
+    etcd_key: "{{ key.stdout }}"
+    etcd_cert: "{{ cert.stdout }}"
+    etcd_ca: "{{ ca.stdout }}"
   template: src=../network/calico/calico.yaml dest={{ cluster_dir }}/calico.yaml
 
 - name: Deploy Calico
