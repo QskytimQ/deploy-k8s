@@ -68,6 +68,14 @@ network_type="host-gw"
 #flannel_if="-ifcfg=eth0"
 flannel_if=""
 
+###################### calico 参数###############
+#启用calico作为容器网络,当选用该网络方案时，修改下面参数为True, 并填写后续参数
+network_calico=False
+#容器网络段
+pod_network="10.200.0.0/16"
+#pod_network_sublen=24
+
+
 ####
 ##  Kubernetes Plugin 选项 ##
 ####

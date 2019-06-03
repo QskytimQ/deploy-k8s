@@ -1,3 +1,9 @@
+- name: Hostname Check
+  shell: hostname
+  register: hostname
+- name: Hostname Set
+  shell: hostnamectl set-hostname {{ inventory_hostname }}
+  when: "hostname.stdout == 'localhost.localdomain'"
 - name: Distribute Bootstrapping And Kube-porxy Config To All Nodes - Dir create
   file: path=/etc/kubernetes/ state=directory
 - name: Distribute Bootstrapping Config To All Nodes - Copy config
@@ -10,6 +16,9 @@
 
 - import_tasks: ./network/bridge_install.yaml
   when: network_bridge | default(False)
+
+- import_tasks: ./network/cni_install.yaml                                     
+  when: network_calico
 
   #install docker 
   #- import_tasks: ./docker.yaml

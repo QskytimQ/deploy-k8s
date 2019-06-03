@@ -1,0 +1,23 @@
+---
+- name: etcd-key GET
+  shell: cat {{ cluster_dir }}/ssl/kubernetes-key.pem | base64 -w 0
+  register: key
+
+- name: etcd-cert GET
+  shell: cat {{ cluster_dir }}/ssl/kubernetes.pem | base64 -w 0
+  register: cert 
+
+- name: etcd-ca GET
+  shell: cat {{ cluster_dir }}/ssl/ca.pem | base64 -w 0
+  register: ca
+
+- name: Calico Yaml Config 
+  vars:
+    etcd_key: "{{ key.stdout }}"
+    etcd_cert: "{{ cert.stdout }}"
+    etcd_ca: "{{ ca.stdout }}"
+  template: src=../network/calico/calico.yaml dest={{ cluster_dir }}/calico.yaml
+
+- name: Deploy Calico
+  shell: kubectl create -f {{ cluster_dir }}/calico.yaml --kubeconfig={{ cluster_dir }}/config
+
