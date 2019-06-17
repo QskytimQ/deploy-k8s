@@ -2,6 +2,10 @@
 - name: Install Containerd 
   unarchive: src=../containerd/bin.tar.gz dest=/usr/local/bin/ mode=0755
 
+- name: Install Containerd With Floatingip Feature
+  unarchive: src=../containerd/with-floatingip-feature/bin.tar.gz dest=/usr/local/bin/ mode=0755 force=true
+  when: network_floatingip | default(False)
+
 - name: Containerd Service Config 
   template: src=../containerd/containerd.service dest=/usr/lib/systemd/system/containerd.service
 
@@ -16,6 +20,10 @@
 
 - name: Containerd Config
   template: src=../containerd/config.toml.template dest=/etc/containerd/config.toml
+
+- name: Containerd Config With Floatingip Feature
+  template: src=../containerd/with-floatingip-feature/config.toml.template dest=/etc/containerd/config.toml force=true
+  when: network_floatingip | default(False)
 
 - name: Crictl Config
   template: src=../containerd/crictl.yaml dest=/etc/crictl.yaml

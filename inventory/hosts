@@ -75,6 +75,10 @@ network_calico=False
 pod_network="10.200.0.0/16"
 #pod_network_sublen=24
 
+###################### floatingip ###############
+#是否启用floatingip, 目前floatingip作为额外的网络插件，需要与其它插件一起使用
+#当启用floatingip时，需要部署相应的组件
+network_floatingip=False
 
 ####
 ##  Kubernetes Plugin 选项 ##

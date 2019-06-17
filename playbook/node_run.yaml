@@ -20,6 +20,9 @@
 - import_tasks: ./network/cni_install.yaml                                     
   when: network_calico
 
+- import_tasks: ./network/floatingip_install.yaml                                     
+  when: network_floatingip
+
   #install docker 
   #- import_tasks: ./docker.yaml
   
