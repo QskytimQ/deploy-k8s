@@ -6,6 +6,9 @@
   unarchive: src=../containerd/with-floatingip-feature/bin.tar.gz dest=/usr/local/bin/ mode=0755 force=true
   when: network_floatingip | default(False)
 
+- name: Containerd Systemd Dir Create
+  file: path=/usr/lib/systemd/system/ state=directory
+
 - name: Containerd Service Config 
   template: src=../containerd/containerd.service dest=/usr/lib/systemd/system/containerd.service
 

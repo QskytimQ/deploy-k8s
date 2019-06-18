@@ -73,6 +73,8 @@ flannel_if=""
 network_calico=False
 #容器网络段
 pod_network="10.200.0.0/16"
+#calico ip-in-ip mode, 参数：off,  always, cross-subnet
+ipipMode='off'
 #pod_network_sublen=24
 
 ###################### floatingip ###############

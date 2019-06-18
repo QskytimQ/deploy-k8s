@@ -1,6 +1,6 @@
 ---
 - name: CNI floatingip bin File
-  copy: src=../network/cni/floatingip/floatingip /opt/cni/bin/ mode=0755
+  copy: src=../network/cni/floatingip/floatingip dest=/opt/cni/bin/ mode=0755
 
 - name: CNI Confifg File Of floatingip
   template: src=../network/cni/floatingip/15-floatingip.conf dest=/etc/cni/net.d/15-floatingip.conf

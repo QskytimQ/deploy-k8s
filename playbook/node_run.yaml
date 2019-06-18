@@ -18,10 +18,10 @@
   when: network_bridge | default(False)
 
 - import_tasks: ./network/cni_install.yaml                                     
-  when: network_calico
+  when: network_calico | default(False)
 
 - import_tasks: ./network/floatingip_install.yaml                                     
-  when: network_floatingip
+  when: network_floatingip | default(False)
 
   #install docker 
   #- import_tasks: ./docker.yaml
