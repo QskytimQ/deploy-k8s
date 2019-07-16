@@ -213,7 +213,7 @@ spec:
         # This container installs the CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: calico/cni:master
+          image: calico/cni:release-v3.8
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -252,7 +252,7 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: calico/node:master
+          image: calico/node:release-v3.8
           env:
             # The location of the etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -328,6 +328,10 @@ spec:
           resources:
             requests:
               cpu: 250m
+              memory: 128Mi
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
           livenessProbe:
             httpGet:
               path: /liveness
@@ -433,7 +437,7 @@ spec:
       priorityClassName: system-cluster-critical
       containers:
         - name: calico-kube-controllers
-          image: calico/kube-controllers:master
+          image: calico/kube-controllers:release-v3.8
           env:
             # The location of the etcd cluster.
             - name: ETCD_ENDPOINTS

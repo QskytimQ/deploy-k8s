@@ -5,6 +5,11 @@ cluster_name=cluster
 #要安装主机的用户密码, 必填
 ansible_ssh_user=root
 ansible_ssh_pass=pass
+#cri 类型: containerd、 docker-ce
+cri=containerd
+#docker 路径, 生产环境中需要保证该目录磁盘空间够大
+docker_path="/var/lib/docker"
+
 #是否为k8s控制节点安装高可用HAProxy
 lb_enable=False
 #当lb_enable=true的时候，设置kube_apiserver为lb的地址，否则设置为实际apiserver的地址, 必填
@@ -14,6 +19,7 @@ kube_apiserver=https://10.0.0.1:6443
 #此处可加入insecure registry地址,当前只支持添加一个insecure registry地址,且必须填一个
 insecure_registry_addr="10.0.0.2"
 insecure_registry_port="80"
+
 #k8s集群组件需要的镜像的registry地址
 base_image_addr="docker.io/kuramal"
 #基础pod镜像地址
