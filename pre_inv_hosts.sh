@@ -37,6 +37,7 @@ k8s_cert_addr=$k8s_cert_addr\"$k8s_cluster_gateway\",
 #echo -e ${k8s_cert_addr}
     
 service_cluster_dns="service_cluster_dns="${k8s_cluster_ip_pre}2
+service_wocloud_ipam_ip="service_wocloud_ipam_ip="${k8s_cluster_ip_pre}3
 
 current_inventory_host=./inventory/$cluster_name"_hosts"
 rm -f $current_inventory_host
@@ -45,6 +46,7 @@ cp  ./inventory/hosts $current_inventory_host
 sed -i $"s%^#etcd_servers=%$etcd_servers%" $current_inventory_host
 sed -i $"s%^#etcd_cluster=%$etcd_cluster%" $current_inventory_host
 sed -i $"s%^#service_cluster_dns=%$service_cluster_dns%" $current_inventory_host
+sed -i $"s%^#service_wocloud_ipam_ip=%$service_wocloud_ipam_ip%" $current_inventory_host
 
 rm -f ./ssl-config/kubernetes-csr.json
 cp ./ssl-config/kubernetes-csr.json.template ./ssl-config/kubernetes-csr.json

@@ -122,17 +122,8 @@
       #     register: result
       #     failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
       
-
-    - name: Dir Create Wocloud-ipam-controller dir 
-      file: path={{ cluster_dir }}/wocloud-ipam/ state=directory 
-
-    - name: Template All Wocloud-ipam-controller Yaml
-      template: src=../wocloud-ipam/wocloud-ipam-controller.yaml dest={{ cluster_dir }}/wocloud-ipam/
-
-    - name: Install Wocloud-ipam-controller
-      shell: kubectl create -f {{ cluster_dir }}/wocloud-ipam/wocloud-ipam-controller.yaml --kubeconfig={{ cluster_dir }}/config
-      register: result
-      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+    - import_tasks: ./node_run.yaml
       when: network_floatingip | default(False)
+    
 
 

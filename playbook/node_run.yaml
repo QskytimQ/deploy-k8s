@@ -20,8 +20,6 @@
 - import_tasks: ./network/cni_install.yaml                                     
   when: network_calico | default(False)
 
-- import_tasks: ./network/floatingip_install.yaml                                     
-  when: network_floatingip | default(False)
 
   #install docker 
   #- import_tasks: ./docker.yaml
@@ -53,6 +51,9 @@
 
 - import_tasks: ./network/flannel_install.yaml
   when: network_flannel | default(False)
+
+- import_tasks: ./network/floatingip_install.yaml                                     
+  when: network_floatingip | default(False)
 
   #- name: Restart Docker
   #service: name=docker state=restarted

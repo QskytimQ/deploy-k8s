@@ -1,5 +1,6 @@
 {
     "name": "mynet",
+    "cniVersion": "0.3.0",
     "plugins": [
       {
         "type": "flannel",

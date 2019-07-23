@@ -29,6 +29,7 @@ pod_image="mirrorgooglecontainers/pause:3.1"
 service_cluster_ip="10.254.0.0/16"
 #不用填写，自动生成
 #service_cluster_dns=
+#service_wocloud_ipam_ip=
 
 #proxy of dns server,至少写一个
 #upstream_nameserver="114.114.114.114 8.8.8.8"
@@ -154,6 +155,7 @@ brd='10.0.0.255'
 auth_pass='121381'
 data_dir='/data'
 plugins="--with-clair"
+harbor_admin_password='Wocloud12345'
 #postgresql_data_dir目录，不能与其它目录共用
 #请确保该目录为其独有，否则可能影响其它业务
 postgresql_data_dir="/var/lib/pgsql/11/data"
