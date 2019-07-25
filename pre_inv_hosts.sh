@@ -39,6 +39,14 @@ k8s_cert_addr=$k8s_cert_addr\"$k8s_cluster_gateway\",
 service_cluster_dns="service_cluster_dns="${k8s_cluster_ip_pre}2
 service_wocloud_ipam_ip="service_wocloud_ipam_ip="${k8s_cluster_ip_pre}3
 
+#system-reserved-mem unit: M
+system_reserved_mem=4096
+mem_total=`ansible -i ./inventory/hosts masters[0] -m shell -a "cat /proc/meminfo | grep MemTotal" | grep MemTotal | awk -F ' ' '{print $2}'`
+reserved_mem=`expr $mem_total / 1024 / 10`
+if [ $reserved_mem -lt $system_reserved_mem ]; then
+    system_reserved_mem=$reserved_mem
+fi
+
 current_inventory_host=./inventory/$cluster_name"_hosts"
 rm -f $current_inventory_host
 cp  ./inventory/hosts $current_inventory_host
@@ -47,6 +55,7 @@ sed -i $"s%^#etcd_servers=%$etcd_servers%" $current_inventory_host
 sed -i $"s%^#etcd_cluster=%$etcd_cluster%" $current_inventory_host
 sed -i $"s%^#service_cluster_dns=%$service_cluster_dns%" $current_inventory_host
 sed -i $"s%^#service_wocloud_ipam_ip=%$service_wocloud_ipam_ip%" $current_inventory_host
+sed -i $"s%^#system-reserved-mem=%$system_reserved_mem%" $current_inventory_host
 
 rm -f ./ssl-config/kubernetes-csr.json
 cp ./ssl-config/kubernetes-csr.json.template ./ssl-config/kubernetes-csr.json

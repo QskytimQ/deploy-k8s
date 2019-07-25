@@ -122,7 +122,7 @@
       #     register: result
       #     failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
       
-    - import_tasks: ./node_run.yaml
+    - import_tasks: ./wocloud-ipam-cluster-config.yaml
       when: network_floatingip | default(False)
     
 

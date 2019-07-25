@@ -31,7 +31,7 @@
       copy: src=../bin/master/ dest=/usr/local/bin/ force=true mode=0755
 
     - name: Copy wocloud-ipam-kube-scheduler Bin File
-      copy: src=../bin/wocloud-ipam-kube-scheduler dest=/usr/local/bin/ force=true mode=0755
+      copy: src=../bin/wocloud-ipam-kube-scheduler dest=/usr/local/bin/kube-scheduler force=true mode=0755
       when: network_floatingip | default(False)
 
     - name: Register Apiserver To System Service

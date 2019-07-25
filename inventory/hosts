@@ -39,6 +39,9 @@ upstream_nameserver="114.114.114.114"
 containerd_root="/var/lib/containerd"
 containerd_state="/run/containerd"
 
+#系统预留内存,自动计算10%，最大4G, 单位M
+#system-reserved-mem=
+
 #etcd服务地址, 不用填写，自动生成
 #etcd_servers=
 
