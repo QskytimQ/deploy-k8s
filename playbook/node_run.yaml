@@ -1,8 +1,15 @@
 - name: Hostname Check
   shell: hostname
   register: hostname
+- name: /etc/resolv.conf Save
+  shell: cat /etc/resolv.conf
+  register: resolv_conf
+  when: "hostname.stdout == 'localhost.localdomain'"
 - name: Hostname Set
   shell: hostnamectl set-hostname {{ inventory_hostname }}
+  when: "hostname.stdout == 'localhost.localdomain'"
+- name: Restore resolv config
+  shell: echo "{{ resolv_conf.stdout }}" > /etc/resolv.conf
   when: "hostname.stdout == 'localhost.localdomain'"
 - name: Distribute Bootstrapping And Kube-porxy Config To All Nodes - Dir create
   file: path=/etc/kubernetes/ state=directory

@@ -32,6 +32,14 @@
     - import_tasks: ./network/calico_install.yaml
       when: network_calico
 
+    - name: Wait For calico-node Available
+      shell: kubectl get ds calico-node -n kube-system| sed '1d' | awk -F ' ' '{if ($2 == $6) {print "OK"}}'
+      register: calico_node_result
+      until: calico_node_result.stdout.find("OK") != -1
+      retries: 180
+      delay: 10
+      when: network_calico
+
     - name: Dir Create All Addon dir 
       file: path={{ cluster_dir }}/addon-yaml/ state=directory 
 

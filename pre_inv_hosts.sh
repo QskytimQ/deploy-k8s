@@ -46,6 +46,7 @@ reserved_mem=`expr $mem_total / 1024 / 10`
 if [ $reserved_mem -lt $system_reserved_mem ]; then
     system_reserved_mem=$reserved_mem
 fi
+system_reserved_mem="system_reserved_mem="$system_reserved_mem
 
 current_inventory_host=./inventory/$cluster_name"_hosts"
 rm -f $current_inventory_host
@@ -55,7 +56,7 @@ sed -i $"s%^#etcd_servers=%$etcd_servers%" $current_inventory_host
 sed -i $"s%^#etcd_cluster=%$etcd_cluster%" $current_inventory_host
 sed -i $"s%^#service_cluster_dns=%$service_cluster_dns%" $current_inventory_host
 sed -i $"s%^#service_wocloud_ipam_ip=%$service_wocloud_ipam_ip%" $current_inventory_host
-sed -i $"s%^#system-reserved-mem=%$system_reserved_mem%" $current_inventory_host
+sed -i $"s%^#system_reserved_mem=%$system_reserved_mem%" $current_inventory_host
 
 rm -f ./ssl-config/kubernetes-csr.json
 cp ./ssl-config/kubernetes-csr.json.template ./ssl-config/kubernetes-csr.json
