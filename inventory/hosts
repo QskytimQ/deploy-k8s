@@ -5,10 +5,6 @@ cluster_name=cluster
 #要安装主机的用户密码, 必填
 ansible_ssh_user=root
 ansible_ssh_pass=pass
-#cri 类型: containerd、 docker-ce
-cri=containerd
-#docker 路径, 生产环境中需要保证该目录磁盘空间够大
-docker_path="/var/lib/docker"
 
 #是否为k8s控制节点安装高可用HAProxy
 lb_enable=False
@@ -35,9 +31,38 @@ service_cluster_ip="10.254.0.0/16"
 #upstream_nameserver="114.114.114.114 8.8.8.8"
 upstream_nameserver="114.114.114.114"
 
+
+#cri 类型: containerd、 docker-ce
+cri=containerd
+#docker 路径, 生产环境中需要保证该目录磁盘空间够大
+docker_path="/var/lib/docker"
 #containerd Config, 下面两个目录不能相同
 containerd_root="/var/lib/containerd"
 containerd_state="/run/containerd"
+
+#**************************promethes配置***********************
+#单位y，w，d，h，m，s和ms
+prometheus_retention_time=30d
+#单位KB, MB, GB, PB
+prometheus_retention_size=50G
+#数据存储目录
+prometheus_data_path="/data/prometheus"
+prometheus_data_size=60G
+#报警信息
+alert_email=False
+#Set the follow para when alert_email is True
+#----------------------------------
+#smtp主机地址 
+smtp_host=
+#发送方邮件地址
+smtp_from=
+#接受方邮件地址
+alert_email_address=
+#发送用户名密码、密码
+smtp_user=
+smtp_password=
+#----------------------------------
+#*************************************************
 
 #系统预留内存,自动计算10%，最大4G, 单位M
 #system_reserved_mem=

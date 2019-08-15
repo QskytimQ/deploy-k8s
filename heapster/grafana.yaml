@@ -15,7 +15,7 @@ spec:
         kubernetes.io/role: master
       containers:
       - name: grafana
-        image: pupudaye/heapster-grafana-amd64:v4.4.3
+        image: {{ base_image_addr }}/heapster-grafana-amd64:v4.4.3
         ports:
         - containerPort: 3000
           protocol: TCP

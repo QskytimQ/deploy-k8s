@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv-{{ pv_num }}
+spec:
+  storageClassName: prometheus-storage
+  capacity:
+    storage: {{ prometheus_data_size }}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  local:
+    path: {{ prometheus_data_path }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/role
+          operator: In
+          values:
+          - master

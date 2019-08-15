@@ -91,3 +91,8 @@
     - import_tasks: ./network/flannel_etcd_config.yaml
       when: network_flannel | default(False)
       run_once: True
+
+    - name: Prometheus Data Dir Create
+      file: path={{ prometheus_data_path }}/prometheus state=directory
+    - name: Grafana Data Dir Create
+      file: path={{ prometheus_data_path }}/grafana state=directory

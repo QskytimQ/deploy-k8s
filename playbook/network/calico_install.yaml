@@ -20,4 +20,6 @@
 
 - name: Deploy Calico
   shell: kubectl create -f {{ cluster_dir }}/calico.yaml --kubeconfig={{ cluster_dir }}/config
+  register: result
+  failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
 

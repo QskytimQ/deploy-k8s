@@ -1,0 +1,49 @@
+- name: Install Prometheus - Config Dir
+  file: path={{ cluster_dir }}/prometheus/prometheus-server state=directory 
+
+- name: Install Prometheus - Generate Single Prometheus Config
+  vars:
+    pv_num: 0
+    prometheus_replicas: 1
+  template: src={{ item }} dest={{ cluster_dir }}/prometheus/prometheus-server
+  with_fileglob:
+    - "../prometheus/prometheus-server/*"
+  when: master_count | int == 1
+
+- name: Install Prometheus - Generate HA Prometheus Config
+  vars:
+    pv_num: 0
+    prometheus_replicas: 2
+  template: src={{ item }} dest={{ cluster_dir }}/prometheus/prometheus-server
+  with_fileglob:
+    - "../prometheus/prometheus-server/*"
+  when: master_count | int > 1
+
+- name: Install Prometheus - Generate HA PV-1
+  vars:
+    pv_num: 1
+  template: src=../prometheus/prometheus-server/prometheus-pv.yaml dest={{ cluster_dir }}/prometheus/prometheus-server/prometheus-pv-1.yaml
+  when: master_count | int > 1
+
+- name: Install Prometheus - Server Deploy 
+  shell: kubectl create -f {{ cluster_dir }}/prometheus/prometheus-server/ --kubeconfig={{ cluster_dir }}/config
+  register: result
+  failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+- name: Install Prometheus - Node Exporter Config 
+  template: src=../prometheus/node-exporter.yaml dest={{ cluster_dir }}/prometheus/node-exporter.yaml
+
+- name: Install Prometheus - Node Exporter Deploy 
+  shell: kubectl create -f {{ cluster_dir }}/prometheus/node-exporter.yaml --kubeconfig={{ cluster_dir }}/config
+  register: result
+  failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+- name: Install Prometheus - AlterManager Config 
+  template: src=../prometheus/alertmanager.yaml dest={{ cluster_dir }}/prometheus/alertmanager.yaml
+
+- name: Install Prometheus - AlterManager Deploy 
+  shell: kubectl create -f {{ cluster_dir }}/prometheus/alertmanager.yaml --kubeconfig={{ cluster_dir }}/config
+  register: result
+  failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+
+

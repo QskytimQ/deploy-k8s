@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  labels:
+    k8s-app: kube-scheduler
+  name: kube-scheduler-prometheus
+  namespace: kube-system
+subsets:
+- ports:
+  - name: http-metrics
+    port: 10251
+    protocol: TCP
+  addresses:

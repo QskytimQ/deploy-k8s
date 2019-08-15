@@ -106,5 +106,11 @@ ansible_exec node.yaml
 #Config Cluster ope
 ansible_exec cluster-ope.yaml
 
+#Install Plugins
+ansible_exec plugins_install.yaml
+
+#Install Prometheus
+ansible_exec prometheus_kubernetes.yaml
+
 #backup inventory host
 #cp inventory/hosts inventory/$cluster_name.bak

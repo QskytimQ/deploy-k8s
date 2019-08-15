@@ -114,6 +114,7 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/role: master
+      priorityClassName: system-cluster-critical
       containers:
       - name: kubernetes-dashboard
         image: {{ base_image_addr }}/kubernetes-dashboard:v1.10.0

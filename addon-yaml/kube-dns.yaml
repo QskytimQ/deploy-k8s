@@ -79,6 +79,7 @@ spec:
                 - amd64
       nodeSelector:
         kubernetes.io/role: master
+      priorityClassName: system-cluster-critical
       containers:
       - args:
         - --domain=cluster.local.

@@ -22,7 +22,7 @@ spec:
       serviceAccountName: heapster
       containers:
       - name: heapster
-        image: fangjipu/heapster:v1.4.2
+        image: {{ base_image_addr }}/heapster:v1.4.2
         imagePullPolicy: IfNotPresent
         command:
         - /heapster
