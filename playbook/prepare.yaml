@@ -7,8 +7,11 @@
   tasks:
     - name: Cluster Name Dir 
       file: path={{ cluster_dir }} state=directory
-    - name: K8S Config Create - Uncompress Kubectl
+    - name: K8S Bin Uncompress
       unarchive: src=../bin/k8s-bin-1.12.0.tar.gz dest=../bin/
+    - name: K8S wocloud-ipam-kube-scheduler Uncompress
+      unarchive: src=../bin/wocloud-ipam-kube-scheduler.tar.gz dest=../bin/
+      when: network_floatingip | default(False)
     - name: K8S Config Create - Copy Kubectl
       copy: src=../bin/kubectl dest=/usr/bin force=true mode=0755
 

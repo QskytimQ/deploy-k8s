@@ -4,7 +4,7 @@ servers = ["HARBORIP_PLACEHOLDER", "HARBORIP_PLACEHOLDER"]
 
 url_protocol = "{{ harbor_protocol }}"
 username = "admin"
-password = "Wocloud12345"
+password = "{{ harbor_admin_password }}"
 
 [log]
 #PanicLevel=0

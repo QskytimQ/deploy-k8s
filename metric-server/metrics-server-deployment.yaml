@@ -34,6 +34,7 @@ spec:
           key: node-role.kubernetes.io/master
       nodeSelector:
         kubernetes.io/role: master
+      priorityClassName: system-cluster-critical
       containers:
       - name: metrics-server
         image: {{ base_image_addr }}/metrics-server:v0.3.1

@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: wocloud-ipam-controller
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  name: wocloud-ipam-controller
+  namespace: kube-system
+spec:
+  ports:
+  - port: 9000
+    protocol: TCP
+    targetPort: 9000
+  selector:
+    k8s-app: wocloud-ipam-controller
+  clusterIP: {{ service_wocloud_ipam_ip }}
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: wocloud-ipam-controller
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - configmaps
+    verbs:
+      - watch
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: wocloud-ipam-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wocloud-ipam-controller
+subjects:
+- kind: ServiceAccount
+  name: wocloud-ipam-controller
+  namespace: kube-system
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wocloud-ipam-controller
+  namespace: kube-system
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wocloud-ipam-controller
+  namespace: kube-system
+  labels:
+    k8s-app: wocloud-ipam-controller
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+spec:
+  # The controllers can only have a single active instance.
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: wocloud-ipam-controller
+      namespace: kube-system
+      labels:
+        k8s-app: wocloud-ipam-controller
+    spec:
+      nodeSelector:
+        kubernetes.io/role: master
+      tolerations:
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      serviceAccountName: wocloud-ipam-controller
+      priorityClassName: system-cluster-critical
+      containers:
+        - name: wocloud-ipam-controller
+          image: {{ base_image_addr }}/wocloud-ipam-controller:master
+

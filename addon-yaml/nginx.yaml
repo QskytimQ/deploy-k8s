@@ -121,8 +121,9 @@ spec:
       hostNetwork: true
       nodeSelector:
         wocloud/role: ingress
+      priorityClassName: system-node-critical
       containers:
-      - image: nginx/nginx-ingress:1.4.3
+      - image: {{ base_image_addr }}/nginx-ingress:1.4.3
         name: nginx-ingress
         ports:
         - name: http
@@ -145,7 +146,7 @@ spec:
          #- -report-ingress-status
          #- -external-service=nginx-ingress
          #- -enable-leader-election
-      - image: nginx/nginx-prometheus-exporter:0.2.0
+      - image: {{ base_image_addr }}/nginx-prometheus-exporter:0.2.0
         name: nginx-prometheus-exporter
         ports:
         - name: prometheus

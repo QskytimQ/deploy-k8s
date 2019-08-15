@@ -7,5 +7,7 @@ rules:
   - policy
   resources:
   - podsecuritypolicies
+  resourceNames:
+  - common
   verbs:
   - use

@@ -30,6 +30,10 @@
     - name: Copy k8s Master Bin File
       copy: src=../bin/master/ dest=/usr/local/bin/ force=true mode=0755
 
+    - name: Copy wocloud-ipam-kube-scheduler Bin File
+      copy: src=../bin/wocloud-ipam-kube-scheduler dest=/usr/local/bin/kube-scheduler force=true mode=0755
+      when: network_floatingip | default(False)
+
     - name: Register Apiserver To System Service
       copy: src=../k8s-config/kube-apiserver.service dest=/usr/lib/systemd/system/ force=true
     - name: Kube Apiserver Config 
@@ -56,6 +60,9 @@
       copy: src=../k8s-config/kube-scheduler.service dest=/usr/lib/systemd/system/ force=true
     - name: Kube Scheduler Config 
       template: src=../k8s-config/scheduler.template dest=/etc/kubernetes/scheduler
+    - name: Kube Wocloud Ipam Scheduler Config 
+      template: src=../k8s-config/wocloud-ipam-scheduler.template dest=/etc/kubernetes/scheduler force=true
+      when: network_floatingip | default(False)
 
     - name: systemctl daemon-reload
       shell: systemctl daemon-reload
@@ -84,3 +91,8 @@
     - import_tasks: ./network/flannel_etcd_config.yaml
       when: network_flannel | default(False)
       run_once: True
+
+    - name: Prometheus Data Dir Create
+      file: path={{ prometheus_data_path }}/prometheus state=directory
+    - name: Grafana Data Dir Create
+      file: path={{ prometheus_data_path }}/grafana state=directory

@@ -1,0 +1,7 @@
+###
+# kubernetes scheduler config
+
+# default config should be adequate
+
+# Add your own!
+KUBE_SCHEDULER_ARGS="--leader-elect=true --address=0.0.0.0 --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig --ipam-address={{ service_wocloud_ipam_ip }}:9000"

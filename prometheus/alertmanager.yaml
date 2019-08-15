@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: main
+  labels:
+    alertmanager: main
+spec:
+  replicas: {{ alert_replicas }}
+  version: ALERTMANAGER_VERSION
+  externalUrl: ALERTMANAGER_EXTERNAL_URL
+  nodeSelector:
+    node_label_key: node_label_value
+  priorityClassName: system-node-critical
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 1024Mi
+      cpu: 1000m
+ 

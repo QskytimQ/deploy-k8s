@@ -16,8 +16,10 @@
     etcd_key: "{{ key.stdout }}"
     etcd_cert: "{{ cert.stdout }}"
     etcd_ca: "{{ ca.stdout }}"
-  template: src=../network/calico/calico.yaml dest={{ cluster_dir }}/calico.yaml
+  template: src=../network/cni/calico/calico.yaml dest={{ cluster_dir }}/calico.yaml
 
 - name: Deploy Calico
   shell: kubectl create -f {{ cluster_dir }}/calico.yaml --kubeconfig={{ cluster_dir }}/config
+  register: result
+  failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
 

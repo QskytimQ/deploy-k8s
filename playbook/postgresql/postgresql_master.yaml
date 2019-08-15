@@ -7,7 +7,7 @@
 - name: Restart Postgres Master
   service: name=postgresql-11 state=restarted enabled=no
 - name: Create replica user
-  shell: psql -U postgres -h 127.0.0.1 -c "create user replica superuser password 'uhnk098@abc';"
+  shell: psql -U postgres -h 127.0.0.1 -c "create user replica superuser password '{{ postgresql_pass }}';"
 
 - name: Change User postgres Password
   shell: psql -U postgres -h 127.0.0.1 -c "ALTER USER postgres WITH PASSWORD '{{ postgresql_pass }}';"

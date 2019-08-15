@@ -1,0 +1,84 @@
+---
+- name: Prometheus Install
+  hosts: 127.0.0.1
+  vars:
+    cluster_dir: /root/{{ cluster_name }}
+    master_count: "{{ groups['masters'] | length }}"
+  tasks:
+    - name: Prometheus - Config Dir
+      file: path={{ cluster_dir }}/prometheus/ state=directory 
+    
+    - name: Copy Project Prometheus_kubernetes
+      copy: src=../prometheus/prometheus-kubernetes dest={{ cluster_dir }}/prometheus/ force=true 
+    
+    - name: Copy Self-hosted Config
+      copy: src=../prometheus/self-hosted dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/ force=true 
+
+    - name: Delete Default ServiceMonitor kube-dns
+      file: path={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/prometheus-k8s-service-monitor-kube-dns.yaml state=absent
+    
+    - name: Generate Self-hosted Config
+      shell: ./prepare.sh {{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/self-hosted
+      args:
+        chdir: "../prometheus/"
+    
+    - name: Prometheus - Replicas
+      shell: if [ {{ master_count }} -gt 1 ];then r=2; else r=1; fi; echo $r
+      register: replicas
+    
+    - name: Generate Prometheus Config
+      vars:
+        prometheus_replicas: "{{ replicas.stdout }}"
+      template: src=../prometheus/prometheus-k8s.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/ force=true
+
+    - name: Generate AlertManager Config
+      vars:
+        alert_replicas: "{{ replicas.stdout }}"
+      template: src=../prometheus/alertmanager.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/alertmanager/ force=true
+
+    - name: Update Node-exporter Config
+      copy: src={{ item }} dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/node-exporter/ force=true
+      with_fileglob:
+        - "../prometheus/node-exporter/*"
+    
+    - name: Update Service Prometheus
+      template: src=../prometheus/service/prometheus-k8s-service.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/ force=true
+
+    - name: Update Service Monitor Prometheus
+      template: src=../prometheus/service/prometheus-k8s-service-monitor-kubelet.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/ force=true
+
+    - name: Update Service Grafana
+      template: src=../prometheus/service/grafana.svc.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/grafana/ force=true
+
+    - name: Update Service AlertManager 
+      template: src=../prometheus/service/alertmanager.svc.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/alertmanager/ force=true
+
+    - name: Prometheus PV - Generate PV-0
+      vars:
+        pv_num: 0
+        node_name: "{{ groups['masters'][0] }}" 
+      template: src=../prometheus/storage/prometheus-pv.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/prometheus-pv-0.yaml
+    
+    - name: Prometheus PV - Generate PV-1
+      vars:
+        pv_num: 1
+        node_name: "{{ groups['masters'][1] }}" 
+      template: src=../prometheus/storage/prometheus-pv.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/prometheus-pv-1.yaml
+      when: replicas.stdout | int == 2
+
+    - name: Grafana PV - Generate PV-0
+      vars:
+        pv_num: 0
+        node_name: "{{ groups['masters'][0] }}" 
+      template: src=../prometheus/storage/grafana-pv.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/grafana/grafana-pv-0.yaml
+
+    - name: Grafana PV - StorageClass
+      template: src=../prometheus/storage/grafana.storageclass.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/grafana/grafana.storageclass.yaml
+    
+    - name: Prometheus Deploy Template
+      template: src=../prometheus/deploy dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/ mode=0755
+    
+    - name: Prometheus Deploy
+      shell: ./deploy {{ cluster_dir }}
+      args:
+        chdir: "{{ cluster_dir }}/prometheus/prometheus-kubernetes/"

@@ -5,6 +5,7 @@ cluster_name=cluster
 #要安装主机的用户密码, 必填
 ansible_ssh_user=root
 ansible_ssh_pass=pass
+
 #是否为k8s控制节点安装高可用HAProxy
 lb_enable=False
 #当lb_enable=true的时候，设置kube_apiserver为lb的地址，否则设置为实际apiserver的地址, 必填
@@ -14,6 +15,7 @@ kube_apiserver=https://10.0.0.1:6443
 #此处可加入insecure registry地址,当前只支持添加一个insecure registry地址,且必须填一个
 insecure_registry_addr="10.0.0.2"
 insecure_registry_port="80"
+
 #k8s集群组件需要的镜像的registry地址
 base_image_addr="docker.io/kuramal"
 #基础pod镜像地址
@@ -23,14 +25,47 @@ pod_image="mirrorgooglecontainers/pause:3.1"
 service_cluster_ip="10.254.0.0/16"
 #不用填写，自动生成
 #service_cluster_dns=
+#service_wocloud_ipam_ip=
 
 #proxy of dns server,至少写一个
 #upstream_nameserver="114.114.114.114 8.8.8.8"
 upstream_nameserver="114.114.114.114"
 
+
+#cri 类型: containerd、 docker-ce
+cri=containerd
+#docker 路径, 生产环境中需要保证该目录磁盘空间够大
+docker_path="/var/lib/docker"
 #containerd Config, 下面两个目录不能相同
 containerd_root="/var/lib/containerd"
 containerd_state="/run/containerd"
+
+#**************************promethes配置***********************
+#单位y，w，d，h，m，s和ms
+prometheus_retention_time=30d
+#单位KB, MB, GB, PB
+prometheus_retention_size=50G
+#数据存储目录
+prometheus_data_path="/data/prometheus"
+prometheus_data_size=60G
+#报警信息
+alert_email=False
+#Set the follow para when alert_email is True
+#----------------------------------
+#smtp主机地址 
+smtp_host=
+#发送方邮件地址
+smtp_from=
+#接受方邮件地址
+alert_email_address=
+#发送用户名密码、密码
+smtp_user=
+smtp_password=
+#----------------------------------
+#*************************************************
+
+#系统预留内存,自动计算10%，最大4G, 单位M
+#system_reserved_mem=
 
 #etcd服务地址, 不用填写，自动生成
 #etcd_servers=
@@ -73,8 +108,14 @@ flannel_if=""
 network_calico=False
 #容器网络段
 pod_network="10.200.0.0/16"
+#calico ip-in-ip mode, 参数：off,  always, cross-subnet
+ipipMode='off'
 #pod_network_sublen=24
 
+###################### floatingip ###############
+#是否启用floatingip, 目前floatingip作为额外的网络插件，需要与其它插件一起使用
+#当启用floatingip时，需要部署相应的组件
+network_floatingip=False
 
 ####
 ##  Kubernetes Plugin 选项 ##
@@ -142,6 +183,7 @@ brd='10.0.0.255'
 auth_pass='121381'
 data_dir='/data'
 plugins="--with-clair"
+harbor_admin_password='Wocloud12345'
 #postgresql_data_dir目录，不能与其它目录共用
 #请确保该目录为其独有，否则可能影响其它业务
 postgresql_data_dir="/var/lib/pgsql/11/data"

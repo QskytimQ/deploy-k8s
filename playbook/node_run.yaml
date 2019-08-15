@@ -1,8 +1,15 @@
 - name: Hostname Check
   shell: hostname
   register: hostname
+- name: /etc/resolv.conf Save
+  shell: cat /etc/resolv.conf
+  register: resolv_conf
+  when: "hostname.stdout == 'localhost.localdomain'"
 - name: Hostname Set
   shell: hostnamectl set-hostname {{ inventory_hostname }}
+  when: "hostname.stdout == 'localhost.localdomain'"
+- name: Restore resolv config
+  shell: echo "{{ resolv_conf.stdout }}" > /etc/resolv.conf
   when: "hostname.stdout == 'localhost.localdomain'"
 - name: Distribute Bootstrapping And Kube-porxy Config To All Nodes - Dir create
   file: path=/etc/kubernetes/ state=directory
@@ -18,13 +25,20 @@
   when: network_bridge | default(False)
 
 - import_tasks: ./network/cni_install.yaml                                     
-  when: network_calico
+  when: network_calico | default(False)
+
 
   #install docker 
   #- import_tasks: ./docker.yaml
   
+  #install docker-ce
+- import_tasks: ./docker-ce.yaml
+  when: cri == 'docker-ce'
+
   #install containerd 
 - import_tasks: ./containerd.yaml
+  when: cri == 'containerd'
+
 
 - name: Disable selinux
   shell: setenforce 0
@@ -45,6 +59,9 @@
 - import_tasks: ./network/flannel_install.yaml
   when: network_flannel | default(False)
 
+- import_tasks: ./network/floatingip_install.yaml                                     
+  when: network_floatingip | default(False)
+
   #- name: Restart Docker
   #service: name=docker state=restarted
 
@@ -53,8 +70,18 @@
 
 - name: Register Kubelet To System Service
   copy: src=../k8s-config/kubelet.service dest=/usr/lib/systemd/system/ force=true
+  when: cri == 'containerd'
 - name: Kubelet Config 
   template: src=../k8s-config/kubelet.template dest=/etc/kubernetes/kubelet
+  when: cri == 'containerd'
+
+- name: Register Kubelet To System Service
+  copy: src=../k8s-config/kubelet_docker_ce.service dest=/usr/lib/systemd/system/kubelet.service force=true
+  when: cri == 'docker-ce'
+- name: Kubelet Config 
+  template: src=../k8s-config/kubelet_docker_ce.template dest=/etc/kubernetes/kubelet
+  when: cri == 'docker-ce'
+
 - name: Kube Common Config 
   template: src=../k8s-config/config.template dest=/etc/kubernetes/config
 
