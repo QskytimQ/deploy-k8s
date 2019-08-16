@@ -6,6 +6,7 @@ metadata:
     alertmanager: main
 spec:
   replicas: {{ alert_replicas }}
+  baseImage: {{ base_image_addr }}/alertmanager
   version: ALERTMANAGER_VERSION
   externalUrl: ALERTMANAGER_EXTERNAL_URL
   nodeSelector:
