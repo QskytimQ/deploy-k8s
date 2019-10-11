@@ -121,6 +121,11 @@ spec:
       hostNetwork: true
       nodeSelector:
         wocloud/role: ingress
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
       priorityClassName: system-node-critical
       containers:
       - image: {{ base_image_addr }}/nginx-ingress:1.4.3

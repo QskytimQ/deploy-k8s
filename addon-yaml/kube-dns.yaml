@@ -212,10 +212,10 @@ spec:
       serviceAccountName: kube-dns
       terminationGracePeriodSeconds: 30
       tolerations:
-      - key: CriticalAddonsOnly
-        operator: Exists
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
       - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+        key: MasterOnly
       volumes:
       - configMap:
           defaultMode: 420

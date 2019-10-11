@@ -74,6 +74,12 @@
 
     - name: Grafana PV - StorageClass
       template: src=../prometheus/storage/grafana.storageclass.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/grafana/grafana.storageclass.yaml
+
+    - name: Grafana ConfigMap Copy
+      copy: src=../prometheus/grafana-dashboards.cm.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/grafana/grafana-dashboards.cm.yaml
+
+    - name: Prometheus Rules Copy
+      copy: src=../prometheus/prometheus-k8s-rules.yaml dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/manifests/prometheus/prometheus-k8s-rules.yaml
     
     - name: Prometheus Deploy Template
       template: src=../prometheus/deploy dest={{ cluster_dir }}/prometheus/prometheus-kubernetes/ mode=0755

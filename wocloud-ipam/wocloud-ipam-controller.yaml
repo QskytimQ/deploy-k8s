@@ -83,6 +83,11 @@ spec:
           effect: NoSchedule
       serviceAccountName: wocloud-ipam-controller
       priorityClassName: system-cluster-critical
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
       containers:
         - name: wocloud-ipam-controller
           image: {{ base_image_addr }}/wocloud-ipam-controller:master

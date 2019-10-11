@@ -190,12 +190,18 @@ if [[ "{{ alert_email }}" == "True" ]]; then
   #smtp password
   smtp_password={{ smtp_password }}
 
+  smtp_require_tls={{ smtp_require_tls }}
+
   #update configmap with SMTP relay info
   sed -i -e 's/your_smtp_smarthost/'"$smtp_smarthost"'/g' assets/alertmanager/alertmanager.yaml
   sed -i -e 's/your_smtp_from/'"$smtp_from"'/g' assets/alertmanager/alertmanager.yaml
   sed -i -e 's/your_smtp_user/'"$smtp_user"'/g' assets/alertmanager/alertmanager.yaml
   sed -i -e 's,your_smtp_pass,'"$smtp_password"',g' assets/alertmanager/alertmanager.yaml
   sed -i -e 's/your_alert_email_address/'"$alert_email_address"'/g' assets/alertmanager/alertmanager.yaml
+  sed -i -e 's/your_smtp_require_tls/'"$smtp_require_tls"'/g' assets/alertmanager/alertmanager.yaml
+else
+  smtp_require_tls=false
+  sed -i -e 's/your_smtp_require_tls/'"$smtp_require_tls"'/g' assets/alertmanager/alertmanager.yaml
 fi
 
 echo

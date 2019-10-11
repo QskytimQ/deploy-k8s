@@ -16,6 +16,12 @@ spec:
         app: custom-metrics-apiserver
       name: custom-metrics-apiserver
     spec:
+      priorityClassName: system-cluster-critical
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
       serviceAccountName: custom-metrics-apiserver
       containers:
       - name: custom-metrics-apiserver

@@ -59,4 +59,5 @@ ansible 127.0.0.1 -m shell -a "./https_cert.sh chdir=$harbor_https_cert_dir"
 
 #harbor sentry prepare
 harbor_protocol=`cat ./inventory/hosts | grep harbor_protocol | sed s/\'//g | sed s/\"//g | awk -F '='  '{print $2}'`
-./harbor/sentry/prepare.sh $cluster_dir $harbar_vip $harbor_protocol
+harbor_admin_password=`cat ./inventory/hosts | grep harbor_admin_password | sed s/\'//g | sed s/\"//g | awk -F '='  '{print $2}'`
+./harbor/sentry/prepare.sh $cluster_dir $harbar_vip $harbor_protocol $harbor_admin_password

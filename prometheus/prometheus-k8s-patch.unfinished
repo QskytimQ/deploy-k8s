@@ -29,11 +29,6 @@ spec:
   nodeSelector:
     node_label_key: node_label_value
   priorityClassName: system-node-critical
-  tolerations:
-  - key: CriticalAddonsOnly
-    operator: Exists
-  - effect: NoSchedule
-    key: MasterOnly
   resources:
     requests:
       memory: 200Mi
@@ -59,6 +54,25 @@ spec:
         resources:
           requests:
             storage: PROMETHEUS_STORAGE_VOLUME_SIZE
+  containers:
+  - name: prometheus-config-reloader
+    image: {{ base_image_addr }}/prometheus-config-reloader:v0.29.0
+    resources:
+      limits:
+        cpu: 500m
+        memory: 200Mi
+      requests:
+        cpu: 50m
+        memory: 50Mi
+  - name: rules-configmap-reloader
+    image: {{ base_image_addr }}/configmap-reload:v0.0.1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 300Mi
+      requests:
+        cpu: 50m
+        memory: 50Mi
   alerting:
     alertmanagers:
     - namespace: CUSTOM_NAMESPACE

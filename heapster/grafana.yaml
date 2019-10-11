@@ -13,6 +13,12 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/role: master
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
+      priorityClassName: system-node-critical
       containers:
       - name: grafana
         image: {{ base_image_addr }}/heapster-grafana-amd64:v4.4.3

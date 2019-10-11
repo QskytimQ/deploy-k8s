@@ -53,7 +53,7 @@ alert_email=False
 #Set the follow para when alert_email is True
 #----------------------------------
 #smtp主机地址 
-smtp_host=
+smtp_host=1.1.1.1:25
 #发送方邮件地址
 smtp_from=
 #接受方邮件地址
@@ -61,6 +61,8 @@ alert_email_address=
 #发送用户名密码、密码
 smtp_user=
 smtp_password=
+#smtp server 是否使用tls, 值true，false，小写
+smtp_require_tls=false
 #----------------------------------
 #*************************************************
 
@@ -110,6 +112,9 @@ network_calico=False
 pod_network="10.200.0.0/16"
 #calico ip-in-ip mode, 参数：off,  always, cross-subnet
 ipipMode='off'
+#网卡选择可选参数:first-found, can-reach=8.8.8.8, can-reach=8.8.8.8, interface=eth.*
+#网卡时要修改下面参数，保证calico使用的是需要的网卡
+ip_autodetection_method='first-found'
 #pod_network_sublen=24
 
 ###################### floatingip ###############
@@ -126,7 +131,9 @@ core_dns=True
 kube_dns=False
 #### Ingress ####
 ##将要使用的Ingress方案设施为True
-nginx=True
+k8s_nginx=False
+nginxinc_nginx=False
+traefik2=True
 traefik=False
 
 ###################### etcd configs ##############

@@ -54,12 +54,15 @@ if [ $? -ne 0 ]; then
 fi
 
 ############################ 生成inventory host ############################
-sh ./pre_inv_hosts.sh $cluster_name
-if [ $? -ne 0 ]; then
-    echo "Prepare inventory hosts file failed"
-    exit 1
-fi
+if [ "$1" != "harbor" ]; then
 
+  sh ./pre_inv_hosts.sh $cluster_name
+  if [ $? -ne 0 ]; then
+      echo "Prepare inventory hosts file failed"
+      exit 1
+  fi
+fi
+    
 ############################ add new nodes OR Install Harbor #####################
 if [ $# == 1 ]; then
    if [ $1 == "nodes" ]; then

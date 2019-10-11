@@ -12,11 +12,16 @@ spec:
   nodeSelector:
     node_label_key: node_label_value
   priorityClassName: system-node-critical
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoSchedule
+    key: MasterOnly
   resources:
     requests:
       memory: 200Mi
       cpu: 100m
     limits:
-      memory: 1024Mi
-      cpu: 1000m
+      memory: 4096Mi
+      cpu: 4000m
  

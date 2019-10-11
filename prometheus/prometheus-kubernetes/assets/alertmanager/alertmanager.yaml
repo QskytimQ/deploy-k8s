@@ -1,7 +1,7 @@
 global:
   resolve_timeout: 5m
   slack_api_url: 'https://hooks.slack.com/services/your_slack_api_token'
-  smtp_smarthost: 'your_smtp_smarthost:587'
+  smtp_smarthost: 'your_smtp_smarthost'
   smtp_from: 'your_smtp_from'
   smtp_auth_username: 'your_smtp_user'
   smtp_auth_password: 'your_smtp_pass'
@@ -59,4 +59,5 @@ receivers:
   email_configs:
   - to: 'your_alert_email_address'
     send_resolved: true
+    require_tls: your_smtp_require_tls
 - name: 'null'

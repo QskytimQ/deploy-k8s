@@ -185,12 +185,6 @@ spec:
     metadata:
       labels:
         k8s-app: calico-node
-      annotations:
-        # This, along with the CriticalAddonsOnly toleration below,
-        # marks the pod as a critical add-on, ensuring it gets
-        # priority scheduling and that its resources are reserved
-        # if it ever gets evicted.
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -204,6 +198,8 @@ spec:
           operator: Exists
         - effect: NoExecute
           operator: Exists
+        - effect: NoSchedule
+          key: MasterOnly
       serviceAccountName: calico-node
       # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
       # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
@@ -216,6 +212,8 @@ spec:
           image: {{ base_image_addr }}/calico-cni:release-v3.8
           command: ["/install-cni.sh"]
           env:
+            - name: IP_AUTODETECTION_METHOD
+              value: {{ ip_autodetection_method }}
             # Name of the CNI config file to create.
             - name: CNI_CONF_NAME
               value: "10-calico.conflist"
@@ -293,6 +291,8 @@ spec:
             - name: CLUSTER_TYPE
               value: "k8s,bgp"
             # Auto-detect the BGP IP address.
+            - name: IP_AUTODETECTION_METHOD
+              value: {{ ip_autodetection_method }}
             - name: IP
               value: "autodetect"
             # Enable IPIP
@@ -433,6 +433,8 @@ spec:
           operator: Exists
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
+        - effect: NoSchedule
+          key: MasterOnly
       serviceAccountName: calico-kube-controllers
       priorityClassName: system-cluster-critical
       containers:

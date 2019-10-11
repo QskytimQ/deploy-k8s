@@ -19,6 +19,12 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/role: master
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule                                      
+        key: MasterOnly
+      priorityClassName: system-cluster-critical
       serviceAccountName: heapster
       containers:
       - name: heapster

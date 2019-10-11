@@ -28,10 +28,10 @@ spec:
       - name: tmp-dir
         emptyDir: {}
       tolerations:
-        - key: "CriticalAddonsOnly"
-          operator: "Exists"
-        - effect: NoSchedule
-          key: node-role.kubernetes.io/master
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule                                      
+        key: MasterOnly
       nodeSelector:
         kubernetes.io/role: master
       priorityClassName: system-cluster-critical

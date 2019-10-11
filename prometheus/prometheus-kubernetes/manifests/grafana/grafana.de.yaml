@@ -15,6 +15,11 @@ spec:
         app: grafana
     spec:
       priorityClassName: system-cluster-critical
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
       containers:
       - image: DOCOKER_REGISTRY/grafana:GRAFANA_VERSION
         name: grafana

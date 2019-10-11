@@ -115,6 +115,11 @@ spec:
       nodeSelector:
         kubernetes.io/role: master
       priorityClassName: system-cluster-critical
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule                                      
+        key: MasterOnly
       containers:
       - name: kubernetes-dashboard
         image: {{ base_image_addr }}/kubernetes-dashboard:v1.10.0

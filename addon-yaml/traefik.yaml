@@ -105,6 +105,11 @@ spec:
       nodeSelector:
         wocloud/role: ingress
       priorityClassName: system-node-critical
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule                                      
+        key: MasterOnly
       containers:
       - image: {{ base_image_addr }}/traefik:v1.7.6
         name: traefik-ingress-lb

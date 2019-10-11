@@ -11,6 +11,12 @@ spec:
         task: monitoring
         k8s-app: influxdb
     spec:
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - effect: NoSchedule
+        key: MasterOnly
+      priorityClassName: system-node-critical
       nodeSelector:
         kubernetes.io/role: master
       containers:

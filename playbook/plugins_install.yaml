@@ -32,40 +32,46 @@
       with_fileglob:
         - "../addon-yaml/*"
 
-    - name: Install All Addon plugin - kube-dns
+    - name: Install Addon plugin - kube-dns
       shell: kubectl create -f {{ cluster_dir }}/addon-yaml/kube-dns.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
       when: kube_dns | default(False)
 
-    - name: Install All Addon plugin - coredns
+    - name: Install Addon plugin - coredns
       shell: kubectl create -f {{ cluster_dir }}/addon-yaml/coredns.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
       when: core_dns | default(False)
 
-    - name: Install All Addon plugin - kubernetes-dashboard
+    - name: Install Addon plugin - kubernetes-dashboard
       shell: kubectl create -f {{ cluster_dir }}/addon-yaml/kubernetes-dashboard.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
 
-    - name: Install All Addon plugin - traefik 
+    - name: Install Addon plugin - traefik2
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/traefik2.yaml --kubeconfig={{ cluster_dir }}/config
+      register: result
+      failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
+      when: traefik2 | default(False)
+
+    - name: Install Addon plugin - traefik 
       shell: kubectl create -f {{ cluster_dir }}/addon-yaml/traefik.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
       when: traefik | default(False)
 
-    - name: Install All Addon plugin - nginx
-      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/nginx.yaml --kubeconfig={{ cluster_dir }}/config
+    - name: Install Addon plugin - k8s-nginx
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/k8s-ingress-nginx.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
-      when: nginx | default(False)
+      when: k8s_nginx | default(False)
 
-    - name: Install All Addon plugin - nginx
-      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/nginx.yaml --kubeconfig={{ cluster_dir }}/config
+    - name: Install Addon plugin - nginxinc-nginx
+      shell: kubectl create -f {{ cluster_dir }}/addon-yaml/nginxinc-ingress-nginx.yaml --kubeconfig={{ cluster_dir }}/config
       register: result
       failed_when: "result.rc != 0 and 'AlreadyExists' not in result.stderr"
-      when: nginx | default(False)
+      when: nginxinc_nginx | default(False)
 
     - name: Dir Create Metric Server dir 
       file: path={{ cluster_dir }}/metric-server/ state=directory 
